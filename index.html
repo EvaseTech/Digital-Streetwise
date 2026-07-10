@@ -544,6 +544,14 @@ class Component extends DCLogic {
         bossName: b && b.name ? b.name : "",
         bossDone: !!(b && b.done),
       });
+
+      // Returning from Stripe Checkout: /api/create-checkout redirects here
+      // with ?paid=1 on success. Unlock locally and clean the URL.
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("paid") === "1") {
+        this.setState({ purchased: true, paywall: false }, () => this.persist());
+        window.history.replaceState({}, "", window.location.pathname);
+      }
     } catch (e) {}
   }
 
@@ -635,7 +643,15 @@ class Component extends DCLogic {
 
   openPaywall() { this.setState({ paywall: true, paywallReason: "default" }); }
   closePaywall() { this.setState({ paywall: false }); }
-  purchase() { this.setState({ purchased: true, paywall: false }, () => this.persist()); }
+  purchase() {
+    fetch('/api/create-checkout', { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.url) { window.location.href = data.url; }
+        else { console.error('Checkout error:', data.error); }
+      })
+      .catch(err => console.error('Checkout error:', err));
+  }
 
   togglePledge(i) {
     this.setState(s => { const p = s.pledges.slice(); p[i] = !p[i]; return { pledges: p }; });
