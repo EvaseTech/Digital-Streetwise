@@ -7,13 +7,10 @@
 //   URL: https://YOUR-DOMAIN/api/webhook
 //   Event: checkout.session.completed
 // Copy the "Signing secret" it gives you into STRIPE_WEBHOOK_SECRET.
-//
-// NOTE: this currently just logs the event. To actually persist
-// "this customer paid" across devices, you'll want a database here —
-// see the comment at the bottom.
 
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const { upsertPurchase } = require('../lib/supabaseAdmin');
 
 module.exports = { config: { api: { bodyParser: false } } };
 
@@ -32,12 +29,18 @@ module.exports.default = async (req, res) => {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    console.log('Payment completed for session:', session.id, session.customer_email);
+    const email = session.customer_details?.email || session.customer_email;
+    console.log('Payment completed for session:', session.id, email);
 
-    // TODO: save to a database, e.g.:
-    //   await db.purchases.insert({ email: session.customer_email, sessionId: session.id, paidAt: new Date() });
-    // Without this, "purchased" only lives in the buyer's browser (localStorage) —
-    // fine for launch, but it means switching devices/browsers loses access.
+    if (email) {
+      try {
+        await upsertPurchase({ email, stripeCustomerId: session.customer, sessionId: session.id });
+      } catch (err) {
+        // Log but still 200 the webhook — Stripe will retry on non-2xx responses,
+        // and we don't want infinite retries because of a DB hiccup.
+        console.error('Failed to save purchase to DB:', err);
+      }
+    }
   }
 
   res.status(200).json({ received: true });
