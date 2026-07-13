@@ -1,16 +1,16 @@
 // POST /api/webhook
-// Stripe calls this after a real payment completes. This is the
-// source of truth for "did they actually pay" — don't trust the
-// ?paid=1 URL param alone, since anyone could type that into the URL.
+// Stripe calls this after a real payment completes, and again if you refund
+// one. This is the source of truth for "did they actually pay" — don't
+// trust the ?paid=1 URL param alone, since anyone could type that into the URL.
 //
 // In the Stripe Dashboard: Developers -> Webhooks -> Add endpoint
 //   URL: https://YOUR-DOMAIN/api/webhook
-//   Event: checkout.session.completed
+//   Events: checkout.session.completed, charge.refunded
 // Copy the "Signing secret" it gives you into STRIPE_WEBHOOK_SECRET.
 
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
-const { upsertPurchase } = require('../lib/supabaseAdmin');
+const { upsertPurchase, revokeByCustomerId, revokeByEmail } = require('../lib/supabaseAdmin');
 
 module.exports = { config: { api: { bodyParser: false } } };
 
@@ -40,6 +40,23 @@ module.exports.default = async (req, res) => {
         // and we don't want infinite retries because of a DB hiccup.
         console.error('Failed to save purchase to DB:', err);
       }
+    }
+  }
+
+  if (event.type === 'charge.refunded') {
+    const charge = event.data.object;
+    const customerId = charge.customer;
+    const email = charge.receipt_email || charge.billing_details?.email;
+    console.log('Refund processed:', customerId || email);
+
+    try {
+      if (customerId) {
+        await revokeByCustomerId(customerId);
+      } else if (email) {
+        await revokeByEmail(email);
+      }
+    } catch (err) {
+      console.error('Failed to revoke access after refund:', err);
     }
   }
 

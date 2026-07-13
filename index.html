@@ -597,12 +597,27 @@ class Component extends DCLogic {
       });
 
       // Returning from Stripe Checkout: /api/create-checkout redirects here
-      // with ?paid=1 on success. Unlock locally and clean the URL.
+      // with ?paid=1&session_id=... on success. Confirm with the server
+      // instead of trusting the URL param alone — anyone could type ?paid=1
+      // into the address bar.
       const params = new URLSearchParams(window.location.search);
-      if (params.get("paid") === "1") {
-        this.setState({ purchased: true, paywall: false, view: "app", screen: "map" }, () => this.persist());
-        window.history.replaceState({}, "", window.location.pathname);
-        window.scrollTo(0, 0);
+      const sessionId = params.get("session_id");
+      if (params.get("paid") === "1" && sessionId) {
+        fetch(`/api/session-status?session_id=${encodeURIComponent(sessionId)}`)
+          .then(r => r.json())
+          .then(data => {
+            window.history.replaceState({}, "", window.location.pathname);
+            if (data.purchased) {
+              this.setState({ purchased: true, paywall: false, view: "app", screen: "map" }, () => {
+                this.persist();
+                this.rememberEmail(data.email);
+              });
+              window.scrollTo(0, 0);
+            }
+          })
+          .catch(() => {
+            window.history.replaceState({}, "", window.location.pathname);
+          });
       }
 
       // Returning via a magic-link email: Supabase auto-detects the token in
@@ -614,7 +629,28 @@ class Component extends DCLogic {
           this.checkPurchaseAndUnlock(session.user.email);
         }
       });
+
+      // Re-check purchase status in the background on every visit, using
+      // whichever email we last confirmed a purchase for. This is what makes
+      // a refund actually take effect here — otherwise, once "purchased" is
+      // cached locally it would stay unlocked forever regardless of refunds.
+      const savedEmail = localStorage.getItem("ds_email");
+      if (savedEmail) {
+        this.supabase.rpc('email_has_purchased', { check_email: savedEmail })
+          .then(({ data: stillPurchased }) => {
+            if (stillPurchased === false && this.state.purchased) {
+              this.setState({ purchased: false }, () => this.persist());
+            } else if (stillPurchased === true && !this.state.purchased) {
+              this.setState({ purchased: true }, () => this.persist());
+            }
+          })
+          .catch(() => {});
+      }
     } catch (e) {}
+  }
+
+  rememberEmail(email) {
+    try { localStorage.setItem("ds_email", String(email).toLowerCase().trim()); } catch (e) {}
   }
 
   checkPurchaseAndUnlock(email) {
@@ -626,7 +662,10 @@ class Component extends DCLogic {
       .maybeSingle()
       .then(({ data, error }) => {
         if (data) {
-          this.setState({ purchased: true, view: "app", screen: "map", loginOpen: false, loginStatus: "idle" }, () => this.persist());
+          this.setState({ purchased: true, view: "app", screen: "map", loginOpen: false, loginStatus: "idle" }, () => {
+            this.persist();
+            this.rememberEmail(normalized);
+          });
           window.scrollTo(0, 0);
         } else {
           this.setState({ loginStatus: "error", loginMessage: "No purchase found for this email. Did you buy with a different one?" });
