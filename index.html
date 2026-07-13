@@ -716,11 +716,40 @@ class Component extends DCLogic {
 
   continueFromLevel() {
     const id = this.state.activeLevel;
+
+    // Level 1 done, no purchase yet: this is the moment to show the paywall,
+    // not skip ahead.
     if (id === 1 && !this.state.purchased) {
       this.setState({ paywall: true, paywallReason: "after1", screen: "map", activeLevel: null });
-    } else {
-      this.backToMap();
+      return;
     }
+
+    // Levels 2-4 cleared: jump straight into the next level instead of
+    // dropping back to the map.
+    if (id < 5) {
+      const nextId = id + 1;
+      const nextLevel = this.levelById(nextId);
+      if (!nextLevel.free && !this.state.purchased) {
+        this.setState({ paywall: true, paywallReason: "locked", screen: "map", activeLevel: null });
+        return;
+      }
+      this.openLevel(nextId);
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    // Level 5 cleared: go straight into the Boss Level.
+    if (id === 5) {
+      if (!this.state.purchased) {
+        this.setState({ paywall: true, paywallReason: "locked", screen: "map", activeLevel: null });
+        return;
+      }
+      this.openBoss();
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    this.backToMap();
   }
 
   openLogin() { this.setState({ loginOpen: true, loginStatus: "idle", loginMessage: "" }); }
@@ -932,7 +961,9 @@ class Component extends DCLogic {
         activeReplay: () => this.restartRun(),
         activeReplayLabel: failed ? "New cards — start over →" : "Replay",
         activeContinue: () => this.continueFromLevel(),
-        activeContinueLabel: (s.activeLevel === 1 && !s.purchased) ? "Unlock the rest →" : "Back to Levels",
+        activeContinueLabel: (s.activeLevel === 1 && !s.purchased) ? "Unlock the rest →" :
+                              (s.activeLevel < 5) ? "Next Level →" :
+                              (s.activeLevel === 5) ? "Boss Level →" : "Back to Levels",
       });
     }
 
