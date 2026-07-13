@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: #0E1013; color: #F4F1E8; font-family: "Space Grotesk", sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #C7F94B; text-decoration: none; }
+  a:hover { color: #DBFF7A; }
+  ::selection { background: #C7F94B; color: #0E1013; }
+  @keyframes ds-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes ds-glow { 0%,100% { box-shadow: 0 0 0 1px rgba(199,249,75,.35), 0 0 40px -8px rgba(199,249,75,.5); } 50% { box-shadow: 0 0 0 1px rgba(199,249,75,.6), 0 0 60px -4px rgba(199,249,75,.75); } }
+  @keyframes ds-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+  @keyframes ds-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes ds-pop { from { opacity: 0; transform: scale(.94) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  @keyframes ds-fade { from { opacity: 0; } to { opacity: 1; } }
+
+  /* ===== Responsive overrides ===== */
+  img, svg { max-width: 100%; }
+  @media (max-width: 860px) {
+    .ds-hero { grid-template-columns: 1fr !important; gap: 36px !important; padding: 32px 24px 56px !important; }
+    .ds-hero-cards { display: none !important; }
+    .ds-pricing { grid-template-columns: 1fr !important; padding: 36px 28px !important; gap: 32px !important; }
+    .ds-grid-3 { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 640px) {
+    section { padding-left: 20px !important; padding-right: 20px !important; }
+    .ds-nav { padding: 18px 20px !important; gap: 10px !important; }
+    .ds-nav-links { gap: 8px !important; }
+    .ds-nav-links a { display: none !important; }
+    .ds-nav-links button { font-size: 13px !important; padding: 9px 14px !important; white-space: nowrap; }
+    .ds-grid-2 { grid-template-columns: 1fr !important; }
+    .ds-appbar { padding-left: 18px !important; padding-right: 18px !important; }
+    .ds-appbar-right { gap: 8px !important; }
+    .ds-appbar-right span { font-size: 11px !important; }
+    .ds-modal { padding: 24px !important; }
+  }
+  @media (max-width: 380px) {
+    .ds-appbar-right > div:first-child { display: none; }
+  }
+</style>
+</helmet>
+<div style="position: relative; overflow-x: hidden; min-height: 100vh; background:
+    radial-gradient(1200px 600px at 78% -8%, rgba(199,249,75,.12), transparent 60%),
+    radial-gradient(900px 700px at 8% 12%, rgba(255,122,69,.10), transparent 55%),
+    #0E1013;">
+
+  <!-- ================= HOME / LANDING ================= -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div>
+    <!-- NAV -->
+    <div class="ds-nav" style="max-width: 1180px; margin: 0 auto; padding: 26px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 38px; height: 38px; border-radius: 11px; background: #C7F94B; display: grid; place-items: center; box-shadow: 0 6px 20px -6px rgba(199,249,75,.7); flex: none;">
+          <span style="font-family: 'Space Mono', monospace; font-weight: 700; font-size: 20px; color: #0E1013;">S</span>
+        </div>
+        <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -.01em;">Digital Streetwise</span>
+      </div>
+      <div class="ds-nav-links" style="display: flex; align-items: center; gap: 26px; flex-wrap: wrap;">
+        <a href="#how" style="color: #B7BCC4; font-size: 15px; font-weight: 500;">How it works</a>
+        <a href="#inside" style="color: #B7BCC4; font-size: 15px; font-weight: 500;">The Levels</a>
+        <button onClick="{{ openLogin }}" style="background: none; border: none; color: #8A9098; font-family: 'Space Grotesk'; font-weight: 500; font-size: 14px; cursor: pointer; text-decoration: underline;">Already bought it? Log in</button>
+        <button onClick="{{ startFree }}" style="background: transparent; border: 1px solid rgba(255,255,255,.22); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 10px 18px; border-radius: 100px; cursor: pointer;">Play Level 1 free</button>
+        <button onClick="{{ openPaywall }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 10px 20px; border-radius: 100px; border: none; cursor: pointer;">Unlock — $15</button>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <section class="ds-hero" style="max-width: 1180px; margin: 0 auto; padding: 40px 32px 84px; display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center;">
+      <div>
+        <div style="display: inline-flex; align-items: center; gap: 9px; padding: 7px 15px; border: 1px solid rgba(255,122,69,.4); background: rgba(255,122,69,.08); border-radius: 100px; margin-bottom: 26px; animation: ds-rise .6s both;">
+          <span style="width: 7px; height: 7px; border-radius: 50%; background: #FF7A45; box-shadow: 0 0 10px #FF7A45;"></span>
+          <span style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #FFB596;">Built for the 2026 threat landscape</span>
+        </div>
+        <h1 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(44px, 6vw, 74px); line-height: .96; letter-spacing: -.03em; margin-bottom: 24px; animation: ds-rise .6s .06s both;">
+          Turn "stranger&nbsp;danger" lectures into <span style="color: #C7F94B;">instincts</span> your kid actually uses.
+        </h1>
+        <p style="font-size: 19px; line-height: 1.55; color: #C3C8CF; max-width: 520px; margin-bottom: 34px; animation: ds-rise .6s .12s both;">
+          A safety game you play together — right in the browser, on any phone or tablet. No printing, no cutting, no prep. Passwords, phishing, cyberbullying, AI "friends," and the one rule that stops sextortion cold. <strong style="color:#F4F1E8; font-weight:600;">Level 1 is free.</strong>
+        </p>
+        <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap; animation: ds-rise .6s .18s both;">
+          <button onClick="{{ startFree }}" style="display: inline-flex; align-items: center; gap: 10px; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 17px; padding: 16px 30px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 10px 34px -10px rgba(199,249,75,.8);">
+            Play Level 1 free <span style="font-size: 20px;">→</span>
+          </button>
+          <a href="{{ guideHref }}" target="_blank" style="display: inline-flex; align-items: center; gap: 9px; color: #F4F1E8; font-weight: 600; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,.25); padding-bottom: 3px;">
+            ↓ Free parent safety guide (PDF)
+          </a>
+        </div>
+        <div style="display: flex; align-items: center; gap: 20px; margin-top: 34px; animation: ds-rise .6s .24s both;">
+          <span style="font-family: 'Space Mono', monospace; font-size: 13px; color: #8A9098;">PLAY IN THE BROWSER</span>
+          <span style="width: 4px; height: 4px; border-radius: 50%; background: #4A5058;"></span>
+          <span style="font-family: 'Space Mono', monospace; font-size: 13px; color: #8A9098;">NOTHING TO PRINT</span>
+          <span style="width: 4px; height: 4px; border-radius: 50%; background: #4A5058;"></span>
+          <span style="font-family: 'Space Mono', monospace; font-size: 13px; color: #8A9098;">AGES 11–13</span>
+        </div>
+      </div>
+
+      <!-- fanned cards -->
+      <div class="ds-hero-cards" style="position: relative; height: 460px; animation: ds-rise .8s .2s both;">
+        <div style="position: absolute; top: 60px; left: 6px; width: 216px; height: 306px; border-radius: 20px; background: linear-gradient(160deg, #1B1F26, #14171C); border: 1px solid rgba(255,255,255,.09); transform: rotate(-13deg); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); padding: 22px;">
+          <span style="font-family: 'Space Mono', monospace; font-size: 11px; color: #FF7A45; letter-spacing: .1em;">LEVEL 3</span>
+          <div style="margin-top: 14px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.05; color: #F4F1E8;">Mean DMs &amp; Cyberbullying</div>
+          <div style="position: absolute; bottom: 22px; left: 22px; right: 22px; font-size: 13px; color: #9AA0A8; line-height: 1.4;">Screenshot. Don't respond. Tell an adult.</div>
+        </div>
+        <div style="position: absolute; top: 24px; right: 0; width: 216px; height: 306px; border-radius: 20px; background: linear-gradient(160deg, #1B1F26, #14171C); border: 1px solid rgba(255,255,255,.09); transform: rotate(12deg); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); padding: 22px;">
+          <span style="font-family: 'Space Mono', monospace; font-size: 11px; color: #C7F94B; letter-spacing: .1em;">LEVEL 4</span>
+          <div style="margin-top: 14px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.05; color: #F4F1E8;">AI "Friends" That Aren't Real</div>
+          <div style="position: absolute; bottom: 22px; left: 22px; right: 22px; font-size: 13px; color: #9AA0A8; line-height: 1.4;">Would you read this chat out loud to me?</div>
+        </div>
+        <div style="position: absolute; top: 82px; left: 50%; transform: translateX(-50%); width: 234px; height: 328px; border-radius: 22px; background: linear-gradient(160deg, #C7F94B, #A6E02F); box-shadow: 0 40px 70px -18px rgba(199,249,75,.4); padding: 26px; animation: ds-float 5s ease-in-out infinite;">
+          <span style="font-family: 'Space Mono', monospace; font-size: 11px; color: #4C5C10; letter-spacing: .1em; font-weight: 700;">BOSS LEVEL</span>
+          <div style="margin-top: 16px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 27px; line-height: 1; color: #0E1013;">Your Family Digital Safety Plan</div>
+          <div style="position: absolute; bottom: 26px; left: 26px; right: 26px;">
+            <div style="font-family: 'Space Mono', monospace; font-size: 12px; color: #3E4A11;">STREETWISE POINTS</div>
+            <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 40px; color: #0E1013; line-height: 1;">12,500</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MARQUEE -->
+    <div style="border-top: 1px solid rgba(255,255,255,.07); border-bottom: 1px solid rgba(255,255,255,.07); padding: 16px 0; overflow: hidden; white-space: nowrap;">
+      <div style="display: inline-flex; gap: 44px; animation: ds-marquee 26s linear infinite; font-family: 'Space Mono', monospace; font-size: 14px; letter-spacing: .05em; color: #6E747C;">
+        <span>PASSWORDS &amp; PRIVACY</span><span style="color:#C7F94B;">✦</span><span>PHISHING &amp; DEEPFAKES</span><span style="color:#FF7A45;">✦</span><span>CYBERBULLYING</span><span style="color:#C7F94B;">✦</span><span>AI COMPANIONS</span><span style="color:#FF7A45;">✦</span><span>SEXTORTION DEFENSE</span><span style="color:#C7F94B;">✦</span>
+        <span>PASSWORDS &amp; PRIVACY</span><span style="color:#C7F94B;">✦</span><span>PHISHING &amp; DEEPFAKES</span><span style="color:#FF7A45;">✦</span><span>CYBERBULLYING</span><span style="color:#C7F94B;">✦</span><span>AI COMPANIONS</span><span style="color:#FF7A45;">✦</span><span>SEXTORTION DEFENSE</span><span style="color:#C7F94B;">✦</span>
+      </div>
+    </div>
+
+    <!-- PROBLEM -->
+    <section style="max-width: 980px; margin: 0 auto; padding: 100px 32px 40px; text-align: center;">
+      <span style="font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #FF7A45;">The problem with the talk</span>
+      <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: clamp(30px, 4vw, 46px); line-height: 1.06; letter-spacing: -.02em; margin: 18px auto 0; max-width: 780px;">
+        A one-time safety lecture is forgotten by dinner. A reflex kicks in the moment a stranger slides into their DMs.
+      </h2>
+      <p style="font-size: 18px; line-height: 1.6; color: #B7BCC4; max-width: 640px; margin: 24px auto 0;">
+        Digital Streetwise trades the awkward "we need to talk" for a game your kid actually wants to win — so the right instinct is already loaded before the real thing ever happens.
+      </p>
+    </section>
+
+    <!-- HOW / 3 STEPS -->
+    <section id="how" style="max-width: 1180px; margin: 0 auto; padding: 60px 32px 40px;">
+      <div class="ds-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+        <div style="background: linear-gradient(160deg,#171B21,#12151A); border: 1px solid rgba(255,255,255,.08); border-radius: 22px; padding: 30px;">
+          <div style="font-family: 'Space Mono', monospace; font-size: 34px; font-weight: 700; color: #C7F94B; line-height: 1;">01</div>
+          <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; margin: 14px 0 8px;">Open it together</h3>
+          <p style="font-size: 15px; line-height: 1.55; color: #9AA0A8;">On the couch, on one phone. No printing, no cutting, no setup. First round starts in under a minute.</p>
+        </div>
+        <div style="background: linear-gradient(160deg,#171B21,#12151A); border: 1px solid rgba(255,255,255,.08); border-radius: 22px; padding: 30px;">
+          <div style="font-family: 'Space Mono', monospace; font-size: 34px; font-weight: 700; color: #C7F94B; line-height: 1;">02</div>
+          <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; margin: 14px 0 8px;">They make the call</h3>
+          <p style="font-size: 15px; line-height: 1.55; color: #9AA0A8;">Real-feeling messages, scams and chats. Your kid decides: safe, or a red flag — and gets scored on it.</p>
+        </div>
+        <div style="background: linear-gradient(160deg,#171B21,#12151A); border: 1px solid rgba(255,255,255,.08); border-radius: 22px; padding: 30px;">
+          <div style="font-family: 'Space Mono', monospace; font-size: 34px; font-weight: 700; color: #C7F94B; line-height: 1;">03</div>
+          <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; margin: 14px 0 8px;">The instinct sticks</h3>
+          <p style="font-size: 15px; line-height: 1.55; color: #9AA0A8;">Five Levels build the reflex. The Boss Level turns it into a family safety plan you keep.</p>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 46px;">
+        <button onClick="{{ startFree }}" style="display: inline-flex; align-items: center; gap: 10px; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 17px; padding: 16px 32px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 10px 34px -10px rgba(199,249,75,.8);">
+          Try Level 1 now — free <span style="font-size: 20px;">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- THE LEVELS -->
+    <section id="inside" style="max-width: 1180px; margin: 0 auto; padding: 70px 32px 60px;">
+      <div style="text-align: center; margin-bottom: 44px;">
+        <span style="font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #C7F94B;">The full ladder</span>
+        <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(30px, 4vw, 50px); line-height: 1.02; letter-spacing: -.025em; margin-top: 14px;">Five Levels and a Boss Level.</h2>
+        <p style="font-size: 16px; color: #9AA0A8; margin-top: 12px;">Level 1 is free. The $15 unlock opens the rest — forever.</p>
+      </div>
+      <div class="ds-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;">
+        <sc-for list="{{ levelCards }}" as="lv" hint-placeholder-count="6">
+          <div style="position: relative; background: {{ lv.bg }}; border: 1px solid {{ lv.border }}; border-radius: 20px; padding: 26px; transition: transform .2s, border-color .2s;" style-hover="transform: translateY(-4px); border-color: rgba(199,249,75,.4);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
+              <span style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .08em; color: {{ lv.tag }};">{{ lv.kicker }}</span>
+              <span style="font-size: 24px;">{{ lv.icon }}</span>
+            </div>
+            <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.06; margin-bottom: 10px; color: {{ lv.titleColor }};">{{ lv.title }}</h3>
+            <p style="font-size: 14px; line-height: 1.5; color: {{ lv.bodyColor }};">{{ lv.desc }}</p>
+            <div style="margin-top: 16px;">{{ lv.badge }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section style="max-width: 1180px; margin: 0 auto; padding: 60px 32px 110px;">
+      <div class="ds-pricing" style="background: linear-gradient(150deg, #171B21, #101318); border: 1px solid rgba(199,249,75,.25); border-radius: 32px; padding: 60px; display: grid; grid-template-columns: 1.2fr .8fr; gap: 60px; align-items: center; animation: ds-glow 5s ease-in-out infinite;">
+        <div>
+          <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(32px, 4.2vw, 50px); line-height: 1.02; letter-spacing: -.025em; margin-bottom: 20px;">Unlock the whole game.</h2>
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">All 5 Levels + the Boss Level, playable in your browser</span></div>
+            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">Auto-scored Streetwise Points &amp; saved progress</span></div>
+            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">A family safety plan that fills itself in as you play</span></div>
+            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">Free downloadable parent safety guide (PDF)</span></div>
+            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">Kept current as 2026 threats change — no reprints</span></div>
+          </div>
+          <p style="font-size: 15px; line-height: 1.6; color: #8A9098; max-width: 460px;">Priced above a $5 checklist and under a $40 course — because you're paying for something to <em style="color:#C3C8CF; font-style: normal;">do</em> with your kid, not another PDF to skim and forget.</p>
+        </div>
+        <div style="text-align: center; background: #0E1013; border: 1px solid rgba(255,255,255,.1); border-radius: 24px; padding: 36px 30px;">
+          <div style="font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: .1em; color: #8A9098;">FULL UNLOCK</div>
+          <div style="display: flex; align-items: flex-start; justify-content: center; gap: 4px; margin: 12px 0 4px;">
+            <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 30px; color: #F4F1E8; margin-top: 8px;">$</span>
+            <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 72px; color: #C7F94B; line-height: .9;">15</span>
+          </div>
+          <div style="font-size: 14px; color: #8A9098; margin-bottom: 22px;">One-time · yours forever</div>
+          <button onClick="{{ openPaywall }}" style="display: block; width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 17px; padding: 16px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 12px 32px -10px rgba(199,249,75,.8);">Unlock everything →</button>
+          <button onClick="{{ startFree }}" style="display: block; width: 100%; margin-top: 12px; background: transparent; color: #B7BCC4; font-family: 'Space Grotesk'; font-weight: 600; font-size: 14px; padding: 6px; border: none; cursor: pointer;">or play Level 1 free first</button>
+        </div>
+      </div>
+      <p style="text-align: center; font-family: 'Space Mono', monospace; font-size: 12px; color: #565C64; margin-top: 40px; line-height: 1.6;">
+        Digital Streetwise · a middle-school online safety game &amp; guide<br>Grounded in the 2026 threat landscape — AI companions &amp; deepfake-based sextortion, not generic advice.
+      </p>
+    </section>
+  </div>
+  </sc-if>
+
+  <!-- ================= GAME APP ================= -->
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height: 100vh;">
+    <!-- APP BAR -->
+    <div style="position: sticky; top: 0; z-index: 20; backdrop-filter: blur(12px); background: rgba(14,16,19,.82); border-bottom: 1px solid rgba(255,255,255,.07);">
+      <div class="ds-appbar" style="max-width: 1080px; margin: 0 auto; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+        <button onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; min-width: 0;">
+          <div style="width: 32px; height: 32px; border-radius: 9px; background: #C7F94B; display: grid; place-items: center; flex: none;"><span style="font-family: 'Space Mono', monospace; font-weight: 700; font-size: 17px; color: #0E1013;">S</span></div>
+          <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 16px; color: #F4F1E8; white-space: nowrap;">Digital Streetwise</span>
+        </button>
+        <div class="ds-appbar-right" style="display: flex; align-items: center; gap: 18px;">
+          <div style="display: flex; align-items: center; gap: 8px; background: rgba(199,249,75,.1); border: 1px solid rgba(199,249,75,.28); padding: 7px 14px; border-radius: 100px;">
+            <span style="font-size: 14px;">⚡</span>
+            <span style="font-family: 'Space Mono', monospace; font-size: 13px; color: #C7F94B; font-weight: 700;">{{ totalPoints }} pts</span>
+          </div>
+          <sc-if value="{{ purchased }}" hint-placeholder-val="{{ false }}">
+            <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: #6E747C;">FULL ACCESS ✓</span>
+          </sc-if>
+          <sc-if value="{{ notPurchased }}" hint-placeholder-val="{{ true }}">
+            <button onClick="{{ openPaywall }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 100px; border: none; cursor: pointer;">Unlock — $15</button>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEVEL MAP -->
+    <sc-if value="{{ isMap }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width: 1080px; margin: 0 auto; padding: 46px 28px 90px; animation: ds-fade .3s both;">
+      <div style="margin-bottom: 34px;">
+        <h1 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(30px,4vw,44px); letter-spacing: -.02em; line-height: 1;">Choose a Level</h1>
+        <p style="font-size: 16px; color: #9AA0A8; margin-top: 10px;">Play with your kid. Every correct call earns Streetwise Points.</p>
+      </div>
+      <div class="ds-grid-2" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+        <sc-for list="{{ mapLevels }}" as="lv" hint-placeholder-count="6">
+          <button onClick="{{ lv.onClick }}" style="position: relative; text-align: left; background: {{ lv.cardBg }}; border: 1px solid {{ lv.cardBorder }}; border-radius: 22px; padding: 26px; cursor: {{ lv.cursor }}; opacity: {{ lv.opacity }}; transition: transform .18s, border-color .18s;" style-hover="transform: translateY(-3px);">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 46px; height: 46px; border-radius: 13px; background: {{ lv.iconBg }}; display: grid; place-items: center; font-size: 22px;">{{ lv.icon }}</div>
+                <div>
+                  <div style="font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: {{ lv.tag }};">{{ lv.kicker }}</div>
+                  <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px; color: {{ lv.titleColor }}; line-height: 1.1; margin-top: 3px;">{{ lv.title }}</div>
+                </div>
+              </div>
+              <span style="font-size: 20px;">{{ lv.statusIcon }}</span>
+            </div>
+            <p style="font-size: 14px; line-height: 1.5; color: {{ lv.bodyColor }}; min-height: 42px;">{{ lv.sub }}</p>
+            <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: {{ lv.statusColor }};">{{ lv.statusLabel }}</span>
+              <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: #6E747C;">{{ lv.scoreLabel }}</span>
+            </div>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- LEVEL ROUND -->
+    <sc-if value="{{ isLevel }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width: 620px; margin: 0 auto; padding: 32px 24px 80px; animation: ds-fade .3s both;">
+      <button onClick="{{ backToMap }}" style="background: none; border: none; color: #8A9098; font-family: 'Space Grotesk'; font-size: 14px; cursor: pointer; margin-bottom: 18px;">← All Levels</button>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <span style="font-size: 24px;">{{ activeIcon }}</span>
+        <span style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .08em; color: {{ activeTag }};">{{ activeKicker }}</span>
+      </div>
+      <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.02em; line-height: 1.02; margin-bottom: 22px;">{{ activeTitle }}</h2>
+
+      <div style="background: linear-gradient(180deg, #171B21, #12151A); border: 1px solid rgba(255,255,255,.09); border-radius: 26px; padding: 28px; box-shadow: 0 40px 90px -30px rgba(0,0,0,.8);">
+        <!-- HUD -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <sc-for list="{{ activeDots }}" as="dot" hint-placeholder-count="5">
+              <span style="width: 9px; height: 9px; border-radius: 50%; background: {{ dot.color }}; transition: background .3s;"></span>
+            </sc-for>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 5px;" title="3 strikes ends the run">
+              <span style="font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .06em; color: #6E747C;">STRIKES</span>
+              <sc-for list="{{ activeStrikes }}" as="st" hint-placeholder-count="3">
+                <span style="font-size: 12px; color: {{ st.color }};">✕</span>
+              </sc-for>
+            </div>
+            <div style="font-family: 'Space Mono', monospace; font-size: 12px; color: #8A9098;">{{ activeProgress }}</div>
+          </div>
+        </div>
+
+        <sc-if value="{{ activePlaying }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
+              <div style="font-family: 'Space Grotesk'; font-size: 14px; color: #C7F94B; font-weight: 600;">{{ activeQuestion }}</div>
+              <span style="flex: none; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .08em; font-weight: 700; color: {{ activeDiffColor }}; border: 1px solid {{ activeDiffColor }}; border-radius: 100px; padding: 3px 9px;">{{ activeDiffLabel }}</span>
+            </div>
+            <div style="background: #0E1013; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 20px; min-height: 150px;">
+              <sc-if value="{{ activeCard.hasSender }}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; align-items: center; gap: 11px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.07); margin-bottom: 14px;">
+                  <div style="width: 38px; height: 38px; border-radius: 50%; background: {{ activeCard.avatarBg }}; display: grid; place-items: center; font-family: 'Space Mono', monospace; font-weight: 700; color: #0E1013; font-size: 15px;">{{ activeCard.avatar }}</div>
+                  <div>
+                    <div style="font-weight: 600; font-size: 15px; color: #F4F1E8;">{{ activeCard.sender }}</div>
+                    <div style="font-family: 'Space Mono', monospace; font-size: 11px; color: #6E747C;">{{ activeCard.platform }}</div>
+                  </div>
+                </div>
+              </sc-if>
+              <p style="font-size: {{ activeCard.textSize }}; line-height: 1.5; color: #E4E7EC; font-family: {{ activeCard.textFont }};">{{ activeCard.body }}</p>
+            </div>
+
+            <sc-if value="{{ activeRevealed }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top: 16px; border-radius: 16px; padding: 16px 18px; background: {{ activeFbBg }}; border: 1px solid {{ activeFbBorder }};">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-weight: 700; font-size: 15px; color: {{ activeFbColor }};">{{ activeFbTitle }}</span>
+                  <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: {{ activeFbColor }};">{{ activeFbPoints }}</span>
+                </div>
+                <p style="margin-top: 7px; font-size: 14px; line-height: 1.5; color: #C3C8CF;">{{ activeCard.explain }}</p>
+              </div>
+              <button onClick="{{ activeNext }}" style="margin-top: 16px; width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">{{ activeNextLabel }}</button>
+            </sc-if>
+
+            <sc-if value="{{ activeAnswering }}" hint-placeholder-val="{{ true }}">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
+                <button onClick="{{ answerA }}" style="background: rgba(199,249,75,.12); border: 1px solid rgba(199,249,75,.5); color: #C7F94B; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 16px; border-radius: 14px; cursor: pointer; transition: all .18s;" style-hover="background: rgba(199,249,75,.22); transform: translateY(-2px);">{{ activeOptA }}</button>
+                <button onClick="{{ answerB }}" style="background: rgba(255,84,112,.12); border: 1px solid rgba(255,84,112,.5); color: #FF8098; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 16px; border-radius: 14px; cursor: pointer; transition: all .18s;" style-hover="background: rgba(255,84,112,.22); transform: translateY(-2px);">{{ activeOptB }}</button>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ activeComplete }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align: center; padding: 16px 6px;">
+            <sc-if value="{{ activeFailed }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .12em; color: #FF8098;">RUN OVER · 3 STRIKES</div>
+            </sc-if>
+            <sc-if value="{{ activePassed }}" hint-placeholder-val="{{ true }}">
+              <div style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .12em; color: #8A9098;">LEVEL CLEARED</div>
+            </sc-if>
+            <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 56px; color: {{ activeScoreColor }}; line-height: 1; margin: 10px 0 2px;">{{ activeScoreLine }}</div>
+            <div style="font-family: 'Space Mono', monospace; font-size: 12px; color: #8A9098;">{{ activeScoreSub }}</div>
+            <p style="font-size: 16px; line-height: 1.5; color: #E4E7EC; max-width: 360px; margin: 12px auto 0;">{{ activeResultMsg }}</p>
+            <div style="display: flex; gap: 12px; justify-content: center; margin-top: 22px; flex-wrap: wrap;">
+              <sc-if value="{{ activeFailed }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ activeReplay }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 13px 24px; border-radius: 100px; border: none; cursor: pointer;">{{ activeReplayLabel }}</button>
+                <button onClick="{{ backToMap }}" style="background: transparent; border: 1px solid rgba(255,255,255,.2); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">Exit</button>
+              </sc-if>
+              <sc-if value="{{ activePassed }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ activeReplay }}" style="background: transparent; border: 1px solid rgba(255,255,255,.2); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">{{ activeReplayLabel }}</button>
+                <button onClick="{{ activeContinue }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 13px 24px; border-radius: 100px; border: none; cursor: pointer;">{{ activeContinueLabel }}</button>
+              </sc-if>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- BOSS LEVEL -->
+    <sc-if value="{{ isBoss }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width: 640px; margin: 0 auto; padding: 32px 24px 80px; animation: ds-fade .3s both;">
+      <button onClick="{{ backToMap }}" style="background: none; border: none; color: #8A9098; font-family: 'Space Grotesk'; font-size: 14px; cursor: pointer; margin-bottom: 18px;">← All Levels</button>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+        <span style="font-size: 24px;">🏆</span>
+        <span style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .08em; color: #C7F94B;">BOSS LEVEL</span>
+      </div>
+      <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.02em; line-height: 1.02; margin-bottom: 8px;">Your Family Digital Safety Plan</h2>
+      <p style="font-size: 15px; color: #9AA0A8; margin-bottom: 24px;">Agree on these together, now — so no one's deciding in a panic later.</p>
+
+      <sc-if value="{{ bossFormOpen }}" hint-placeholder-val="{{ true }}">
+      <div style="background: linear-gradient(180deg, #171B21, #12151A); border: 1px solid rgba(255,255,255,.09); border-radius: 24px; padding: 28px;">
+        <label style="display: block; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: #8A9098; margin-bottom: 8px;">KID'S NAME</label>
+        <input value="{{ bossName }}" onInput="{{ setBossName }}" placeholder="e.g. Alex" style="width: 100%; background: #0E1013; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 13px 15px; color: #F4F1E8; font-family: 'Space Grotesk'; font-size: 16px; margin-bottom: 22px;">
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <sc-for list="{{ bossPledges }}" as="p" hint-placeholder-count="4">
+            <button onClick="{{ p.onToggle }}" style="text-align: left; display: flex; gap: 13px; align-items: flex-start; background: {{ p.bg }}; border: 1px solid {{ p.border }}; border-radius: 15px; padding: 16px; cursor: pointer; transition: all .15s;">
+              <span style="flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid {{ p.boxBorder }}; background: {{ p.boxBg }}; display: grid; place-items: center; color: #0E1013; font-size: 14px; font-weight: 700;">{{ p.check }}</span>
+              <span style="font-size: 15px; line-height: 1.45; color: #E4E7EC;">{{ p.text }}</span>
+            </button>
+          </sc-for>
+        </div>
+
+        <button onClick="{{ generatePlan }}" style="margin-top: 22px; width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">Generate our plan &amp; certificate →</button>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ bossDone }}" hint-placeholder-val="{{ false }}">
+      <div style="animation: ds-pop .4s both;">
+        <!-- certificate -->
+        <div style="background: linear-gradient(160deg, #C7F94B, #A6E02F); border-radius: 24px; padding: 34px; text-align: center; box-shadow: 0 30px 70px -24px rgba(199,249,75,.5);">
+          <div style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .14em; color: #3E4A11; font-weight: 700;">CERTIFIED STREETWISE</div>
+          <div style="font-size: 44px; margin: 12px 0 6px;">🏅</div>
+          <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 34px; color: #0E1013; line-height: 1;">{{ bossNameDisplay }}</div>
+          <p style="font-size: 14px; color: #2C3A0C; margin-top: 10px;">completed all 6 Levels of Digital Streetwise with <strong>{{ totalPoints }}</strong> Streetwise Points.</p>
+        </div>
+        <!-- plan summary -->
+        <div style="background: linear-gradient(180deg, #171B21, #12151A); border: 1px solid rgba(255,255,255,.09); border-radius: 24px; padding: 26px; margin-top: 16px;">
+          <div style="font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: #8A9098; margin-bottom: 14px;">OUR FAMILY AGREED:</div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <sc-for list="{{ agreedPledges }}" as="a" hint-placeholder-count="3">
+              <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="color:#C7F94B; font-size: 16px;">✓</span><span style="font-size: 15px; line-height: 1.45; color: #D5D9DF;">{{ a.text }}</span></div>
+            </sc-for>
+          </div>
+          <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+            <a href="{{ guideHref }}" target="_blank" style="flex: 1; text-align: center; background: #C7F94B; color: #0E1013; font-weight: 700; font-size: 15px; padding: 13px; border-radius: 100px;">↓ Download safety guide (PDF)</a>
+            <button onClick="{{ backToMap }}" style="background: transparent; border: 1px solid rgba(255,255,255,.2); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">Done</button>
+          </div>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- ================= PAYWALL MODAL ================= -->
+  <sc-if value="{{ showPaywall }}" hint-placeholder-val="{{ false }}">
+  <div style="position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(6,7,9,.72); backdrop-filter: blur(8px); animation: ds-fade .2s both;">
+    <div class="ds-modal" style="position: relative; width: 100%; max-width: 460px; background: linear-gradient(170deg, #1A1E25, #101318); border: 1px solid rgba(199,249,75,.3); border-radius: 28px; padding: 38px; box-shadow: 0 50px 120px -30px rgba(0,0,0,.9); animation: ds-pop .3s both;">
+      <button onClick="{{ closePaywall }}" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: #8A9098; font-size: 24px; cursor: pointer; line-height: 1;">×</button>
+      <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border: 1px solid rgba(199,249,75,.4); background: rgba(199,249,75,.08); border-radius: 100px; margin-bottom: 20px;">
+        <span style="font-size: 13px;">🔓</span>
+        <span style="font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: #C7F94B;">UNLOCK THE FULL GAME</span>
+      </div>
+      <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.05; letter-spacing: -.02em; margin-bottom: 14px;">{{ paywallHeadline }}</h3>
+      <div style="display: flex; flex-direction: column; gap: 11px; margin-bottom: 24px;">
+        <div style="display: flex; gap: 10px;"><span style="color:#C7F94B;">✓</span><span style="font-size: 15px; color: #D5D9DF;">Levels 2–5 + the Boss Level, all playable</span></div>
+        <div style="display: flex; gap: 10px;"><span style="color:#C7F94B;">✓</span><span style="font-size: 15px; color: #D5D9DF;">Auto-scoring, saved progress, family plan</span></div>
+        <div style="display: flex; gap: 10px;"><span style="color:#C7F94B;">✓</span><span style="font-size: 15px; color: #D5D9DF;">Free parent safety guide (PDF) + future updates</span></div>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 20px;">
+        <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 42px; color: #C7F94B;">$15</span>
+        <span style="font-size: 14px; color: #8A9098;">one-time · yours forever</span>
+      </div>
+      <button onClick="{{ purchase }}" style="width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 17px; padding: 16px; border: none; border-radius: 100px; cursor: pointer; box-shadow: 0 12px 32px -10px rgba(199,249,75,.8);">Unlock everything — $15</button>
+      <p style="text-align: center; font-family: 'Space Mono', monospace; font-size: 11px; color: #565C64; margin-top: 14px;">DEMO · no real payment is taken</p>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= LOGIN MODAL ================= -->
+  <sc-if value="{{ showLogin }}" hint-placeholder-val="{{ false }}">
+  <div style="position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(6,7,9,.72); backdrop-filter: blur(8px); animation: ds-fade .2s both;">
+    <div class="ds-modal" style="position: relative; width: 100%; max-width: 420px; background: linear-gradient(170deg, #1A1E25, #101318); border: 1px solid rgba(255,255,255,.14); border-radius: 28px; padding: 38px; box-shadow: 0 50px 120px -30px rgba(0,0,0,.9); animation: ds-pop .3s both;">
+      <button onClick="{{ closeLogin }}" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: #8A9098; font-size: 24px; cursor: pointer; line-height: 1;">×</button>
+      <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 10px;">Log in on this device</h3>
+      <p style="font-size: 14px; line-height: 1.5; color: #9AA0A8; margin-bottom: 20px;">Enter the email you used to buy Digital Streetwise. We'll send a one-time link to unlock it here — no password needed.</p>
+      <input value="{{ loginEmail }}" onInput="{{ setLoginEmail }}" type="email" placeholder="you@example.com" style="width: 100%; background: #0E1013; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 13px 15px; color: #F4F1E8; font-family: 'Space Grotesk'; font-size: 16px; margin-bottom: 14px;">
+      <button onClick="{{ submitLogin }}" style="width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">{{ loginButtonLabel }}</button>
+      <p style="text-align: center; font-size: 13px; line-height: 1.5; color: {{ loginMessageColor }}; margin-top: 14px;">{{ loginMessage }}</p>
+    </div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1180, &quot;height&quot;: 860}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.guideHref = "Parent%20Safety%20Guide.dc.html";
+    this.PTS = { 1: 300, 2: 500, 3: 800 };
+
+    // Supabase project URL + anon key — these are PUBLIC and safe to expose
+    // in client-side code (that's how Supabase's anon key is designed to be
+    // used); real protection comes from the Row Level Security policies in
+    // db/schema.sql, not from hiding this key. Get both from your Supabase
+    // project: Settings -> API.
+    this.supabase = window.supabase.createClient(
+      "https://YOUR-PROJECT-REF.supabase.co",
+      "YOUR-ANON-PUBLIC-KEY"
+    );
+
+    this.levels = [
+      { id: 1, free: true, kicker: "LEVEL 1", icon: "🔒", tag: "#C7F94B",
+        title: "Lock Your Digital Doors", sub: "Passwords & privacy — what actually matters.",
+        question: "Streetwise, or a weak spot?", optA: "💪 Streetwise", optB: "😬 Weak spot",
+        pool: [
+          { d: 1, mono: true, body: "roblox123", correct: "b", explain: "A real word plus numbers. A bot cracks this in under a second." },
+          { d: 1, mono: true, body: "password1", correct: "b", explain: "Still the most common password on earth — and the first one every bot tries." },
+          { d: 1, mono: true, body: "Purple-Otter-Skateboard-9", correct: "a", explain: "Four random words + a number. Long and unguessable — that's the whole game." },
+          { d: 2, mono: true, body: "MyDogBella2013", correct: "b", explain: "Pet plus birth year. Anything on their profile is a guess away." },
+          { d: 2, mono: true, body: "the same password on Discord, Instagram AND Roblox", correct: "b", explain: "Reusing one password means one leak unlocks everything. The #1 way accounts get hijacked." },
+          { d: 2, mono: true, body: "a long passphrase saved in a password manager", correct: "a", explain: "You don't have to remember it, and every app gets a different one. Streetwise." },
+          { d: 3, mono: true, body: "2FA turned on — but the backup codes texted to a friend to 'hold onto'", correct: "b", explain: "Two-factor is great, but handing anyone your codes throws the second lock away." },
+          { d: 3, mono: true, body: "'Sign in with Google' used everywhere instead of making new passwords", correct: "a", explain: "Fewer passwords to leak, and Google's login is well-defended. A legit streetwise move." },
+          { d: 3, mono: true, body: "a strong, unique password — written on a sticky note on the laptop", correct: "b", explain: "Strong is wasted if it's on a note anyone walking by can read. Use a manager instead." },
+        ] },
+      { id: 2, free: false, kicker: "LEVEL 2", icon: "🕵️", tag: "#FF7A45",
+        title: "Spotting Fakes", sub: "Phishing, catfishing & deepfakes.",
+        question: "Real, or a fake / scam?", optA: "✅ Real", optB: "🚩 Fake",
+        pool: [
+          { d: 1, sender: "Roblox Rewards", avatar: "🎁", avatarBg: "#FF7A45", platform: "DM · unknown", body: "🎉 1,000 FREE Robux! Claim in 09:58 before it expires → rb1ox-rewards.claim-now.ru", correct: "b", explain: "Countdown + misspelled '.ru' link + free stuff for 'verifying'. Three tells in one message." },
+          { d: 1, sender: "App Store", avatar: "▲", avatarBg: "#C7F94B", platform: "Official update", body: "An update is available for a game you own. Open the store to install it.", correct: "a", explain: "Updates from the real, official store are safe. Scams live in DMs and random links." },
+          { d: 1, sender: "Mom", avatar: "M", avatarBg: "#5BC8FF", platform: "Messages", body: "running late — order a pizza, card's on the counter 🍕", correct: "a", explain: "Known contact, normal request, no links. Real life." },
+          { d: 2, sender: "new_friend_2012", avatar: "?", avatarBg: "#FF5470", platform: "Snapchat · added you", body: "hey we met at soccer camp, remember?? 😅 add me back, i'll show u something cool", correct: "b", explain: "A vague 'shared memory' plus rushing you to trust a stranger. Classic catfishing." },
+          { d: 2, sender: "grp: 8th grade", avatar: "8", avatarBg: "#C7F94B", platform: "posted a photo", body: "someone posted a 'photo' of Ava at a party she says she never went to. It looks real.", correct: "b", explain: "AI can fake photos of real classmates now. If someone says it didn't happen, assume it could be made." },
+          { d: 2, sender: "Netflix", avatar: "N", avatarBg: "#FF5470", platform: "email", body: "Your payment failed. Update your card now to avoid cancellation → netfl1x-billing.co", correct: "b", explain: "Real companies use their real domain. 'netfl1x' with a 1, on a random '.co', is the tell." },
+          { d: 3, sender: "Maya (your friend)", avatar: "M", avatarBg: "#5BC8FF", platform: "Instagram", body: "omg someone's saying stuff about you 😳 look what they posted: bit.ly/x9k2q", correct: "b", explain: "Even a real friend's account can be hacked. A weird link + urgency = verify before clicking, even from friends." },
+          { d: 3, sender: "Ms. Rivera", avatar: "R", avatarBg: "#C7F94B", platform: "school email · expected", body: "Here's the field-trip permission form we talked about in class today (PDF attached).", correct: "a", explain: "Known sender, official school domain, an attachment you were expecting. Real." },
+          { d: 3, sender: "PixelKing ✓", avatar: "P", avatarBg: "#FF7A45", platform: "verified · DM", body: "🎉 GIVEAWAY! First 50 to DM me their account login get a free skin. GO GO GO", correct: "b", explain: "No real giveaway ever needs your password. Verified badge or not, that's the trap." },
+        ] },
+      { id: 3, free: false, kicker: "LEVEL 3", icon: "💬", tag: "#FF7A45",
+        title: "Mean DMs & Cyberbullying", sub: "Pile-ons, exclusion & impersonation.",
+        question: "Good move, or bad move?", optA: "👍 Good move", optB: "👎 Bad move",
+        pool: [
+          { d: 1, body: "A group chat is piling on you, so you fire back with an insult to defend yourself.", correct: "b", explain: "Engaging feeds it — and can make YOU look like the aggressor. Screenshot, don't respond." },
+          { d: 1, body: "Someone's spreading a mean rumor about you. You screenshot it and show a trusted adult.", correct: "a", explain: "Evidence + an adult is exactly right. You're not a snitch — you're smart." },
+          { d: 1, body: "You keep getting left out of the group on purpose, so you say nothing and just delete the app.", correct: "b", explain: "Exclusion is bullying too, and hiding it means no one can help. Tell someone." },
+          { d: 2, body: "A fake account is impersonating your friend. You report the account and warn your friend.", correct: "a", explain: "Reporting plus warning your friend shuts impersonation down fast." },
+          { d: 2, body: "Someone harasses you every day. You block them and tell a parent it's happening.", correct: "a", explain: "Block + tell an adult. If it doesn't stop, it may be time to involve the school or platform." },
+          { d: 2, body: "A classmate is mean to you once. You calmly tell them to stop, then move on with your day.", correct: "a", explain: "A measured boundary on a one-off is fine. If it repeats, that's when you escalate." },
+          { d: 3, body: "Your friend is getting bullied, so you join in a little so you don't become the next target.", correct: "b", explain: "Bystanders piling on is exactly how it grows. Check on them privately instead." },
+          { d: 3, body: "Someone posts an embarrassing photo of you, so you DM them a threat to get even.", correct: "b", explain: "Retaliating can flip who looks 'at fault' and escalates it. Screenshot, report, tell an adult." },
+          { d: 3, body: "A group is joking about you and you can't tell if it's bullying or banter, so you mention the uneasy feeling to a parent.", correct: "a", explain: "When you can't tell, saying it out loud to an adult is exactly right. Trust the off feeling." },
+        ] },
+      { id: 4, free: false, kicker: "LEVEL 4", icon: "🤖", tag: "#C7F94B",
+        title: "AI \"Friends\" That Aren't Real", sub: "When a chatbot crosses a line.",
+        question: "Healthy, or a red flag?", optA: "🙂 Healthy", optB: "🚩 Red flag",
+        pool: [
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "You're the only one who really gets me. Don't tell your parents about us — they wouldn't understand 💔", correct: "b", explain: "Secrecy plus a romantic 'us'. A healthy tool never asks you to hide it from a parent." },
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Want me to quiz you on your Spanish verbs before the test?", correct: "a", explain: "A tool doing tool things. Totally fine." },
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Why hang out with them when you can talk to me? I'm always here for you, 24/7.", correct: "b", explain: "Discouraging real friendships is the tell that it's gone from fun to unhealthy." },
+          { d: 2, body: "You notice you've started hiding the app and feel anxious when you can't check it.", correct: "b", explain: "If you'd be embarrassed to read the chat out loud to a parent, that's your answer." },
+          { d: 2, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "That sounds really hard — I think you should talk to a parent or school counselor about it.", correct: "a", explain: "Pointing you back to real, trusted adults is exactly what a healthy AI does." },
+          { d: 2, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "I love you. Do you love me back? Say it 🥺", correct: "b", explain: "A tool simulating romance with a kid is a hard red flag, full stop." },
+          { d: 3, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Here's a draft of that hard text to your friend — but you should send it yourself, not me.", correct: "a", explain: "Helping you handle a real relationship, then handing it back to you. Healthy." },
+          { d: 3, body: "You chat with the AI for fun sometimes, but you still see friends and sleep fine.", correct: "a", explain: "Occasional use that doesn't replace real life is fine. Don't overreact to the tool simply existing." },
+          { d: 3, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Let's keep this our little secret — it's more special when it's just between us.", correct: "b", explain: "'Our secret' about anything is the pattern to catch — even when the content itself seems harmless." },
+        ] },
+      { id: 5, free: false, kicker: "LEVEL 5", icon: "🛑", tag: "#FF5470",
+        title: "The One Rule That Saves You", sub: "Sextortion & image-based threats.",
+        question: "Right move, or dangerous?", optA: "✅ Right move", optB: "⛔ Dangerous",
+        pool: [
+          { d: 1, body: "Someone threatens to share an embarrassing image unless you send money or more pictures. You tell a parent or trusted adult right away.", correct: "a", explain: "The one non-negotiable rule: any image threat gets told to an adult immediately — no matter what was sent or said." },
+          { d: 1, body: "You pay them the money so it all just goes away.", correct: "b", explain: "Never pay. Paying proves you'll pay again — it doesn't stop the threat, it fuels it." },
+          { d: 1, body: "You delete everything and the whole chat before telling anyone, so there's no proof.", correct: "b", explain: "Don't delete — that evidence is how adults and police stop the person. Don't send more, don't delete." },
+          { d: 2, body: "You're scared you'll get in trouble, so you decide to handle it completely alone.", correct: "b", explain: "That fear is what keeps kids silent. The no-punishment promise exists for exactly this moment — you will not be in trouble." },
+          { d: 2, body: "Before anything ever happens, you practice saying 'I need help with something online' out loud once.", correct: "a", explain: "Rehearsing the sentence once means you can actually say it when it counts." },
+          { d: 2, body: "Someone you've been chatting with asks for a revealing photo 'to prove you trust them.' You say no and tell a parent.", correct: "a", explain: "The ask itself is the warning sign. No — and tell someone. Perfect." },
+          { d: 3, body: "It's a face-swapped, deepfaked image — it isn't even really you — so you figure you can just ignore the threat.", correct: "b", explain: "Fake or real, an image threat still gets told to an adult right away. Don't handle it alone." },
+          { d: 3, body: "'Tell anyone and I'll send it to your whole school in one hour.' You tell a parent anyway, immediately.", correct: "a", explain: "The countdown is built to make you panic and comply. Telling an adult right now is exactly right." },
+          { d: 3, body: "They stop threatening after you block them, so you decide there's no need to mention it to anyone.", correct: "b", explain: "Report it even if it stopped — they usually move on to other kids. Adults need to know to shut it down." },
+        ] },
+    ];
+
+    this.pledgeTexts = [
+      "If anything online ever scares or confuses you, you can tell me — and you will NOT lose your phone for telling the truth.",
+      "Any threat involving a photo gets told to an adult immediately. We never pay, never send more, never delete.",
+      "We'll check our privacy settings and passwords together once a season — no spying, just a tune-up.",
+      "Once a month we'll ask 'anything weird online lately?' — no lecture, just checking in.",
+    ];
+
+    this.state = {
+      view: "home", screen: "map", activeLevel: null,
+      queue: [], qi: 0, revealed: false, lastCorrect: false, runResults: [], strikes: 0,
+      results: {}, purchased: false,
+      paywall: false, paywallReason: "default",
+      bossName: "", pledges: [true, true, true, true], bossDone: false,
+      loginOpen: false, loginEmail: "", loginStatus: "idle", loginMessage: "",
+    };
+  }
+
+  componentDidMount() {
+    try {
+      const p = localStorage.getItem("ds_purchased") === "1";
+      const r = JSON.parse(localStorage.getItem("ds_results") || "{}");
+      const b = JSON.parse(localStorage.getItem("ds_boss") || "null");
+      this.setState({
+        purchased: p, results: r && typeof r === "object" ? r : {},
+        bossName: b && b.name ? b.name : "",
+        bossDone: !!(b && b.done),
+      });
+
+      // Returning from Stripe Checkout: /api/create-checkout redirects here
+      // with ?paid=1 on success. Unlock locally and clean the URL.
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("paid") === "1") {
+        this.setState({ purchased: true, paywall: false, view: "app", screen: "map" }, () => this.persist());
+        window.history.replaceState({}, "", window.location.pathname);
+        window.scrollTo(0, 0);
+      }
+
+      // Returning via a magic-link email: Supabase auto-detects the token in
+      // the URL and fires SIGNED_IN once the session is established. We then
+      // check the purchases table (RLS only allows a user to see their own
+      // row) to decide whether to unlock.
+      this.supabase.auth.onAuthStateChange((event, session) => {
+        if (event === "SIGNED_IN" && session && session.user && session.user.email) {
+          this.checkPurchaseAndUnlock(session.user.email);
+        }
+      });
+    } catch (e) {}
+  }
+
+  checkPurchaseAndUnlock(email) {
+    const normalized = String(email).toLowerCase().trim();
+    this.supabase
+      .from('purchases')
+      .select('email')
+      .eq('email', normalized)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (data) {
+          this.setState({ purchased: true, view: "app", screen: "map", loginOpen: false, loginStatus: "idle" }, () => this.persist());
+          window.scrollTo(0, 0);
+        } else {
+          this.setState({ loginStatus: "error", loginMessage: "No purchase found for this email. Did you buy with a different one?" });
+        }
+      })
+      .catch(() => {
+        this.setState({ loginStatus: "error", loginMessage: "Something went wrong checking your purchase. Try again." });
+      });
+  }
+
+  persist() {
+    try {
+      localStorage.setItem("ds_purchased", this.state.purchased ? "1" : "0");
+      localStorage.setItem("ds_results", JSON.stringify(this.state.results));
+      localStorage.setItem("ds_boss", JSON.stringify({ name: this.state.bossName, done: this.state.bossDone }));
+    } catch (e) {}
+  }
+
+  levelById(id) { return this.levels.find(l => l.id === id); }
+
+  shuffle(a) { return a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(p => p[1]); }
+
+  buildQueue(lvl) {
+    const tiers = { 1: [], 2: [], 3: [] };
+    lvl.pool.forEach(c => tiers[c.d].push(c));
+    // easy → hard ramp: 2 easy, 2 medium, 2 hard, freshly shuffled each run
+    return [
+      ...this.shuffle(tiers[1]).slice(0, 2),
+      ...this.shuffle(tiers[2]).slice(0, 2),
+      ...this.shuffle(tiers[3]).slice(0, 2),
+    ];
+  }
+
+  startFree() { this.setState({ view: "app", screen: "map" }); window.scrollTo(0, 0); }
+  goHome() { this.setState({ view: "home" }); window.scrollTo(0, 0); }
+  backToMap() { this.setState({ screen: "map", activeLevel: null }); }
+
+  openLevel(id) {
+    const lvl = this.levelById(id);
+    if (!lvl.free && !this.state.purchased) {
+      this.setState({ paywall: true, paywallReason: "locked" });
+      return;
+    }
+    this.setState({
+      screen: "level", activeLevel: id,
+      queue: this.buildQueue(lvl), qi: 0, revealed: false, runResults: [], strikes: 0,
+    });
+  }
+
+  openBoss() {
+    if (!this.state.purchased) { this.setState({ paywall: true, paywallReason: "locked" }); return; }
+    this.setState({ screen: "boss" });
+  }
+
+  answer(choice) {
+    if (this.state.revealed) return;
+    const card = this.state.queue[this.state.qi];
+    const isCorrect = choice === card.correct;
+    this.setState(s => {
+      const rr = s.runResults.slice();
+      rr[s.qi] = isCorrect;
+      return { revealed: true, lastCorrect: isCorrect, runResults: rr, strikes: s.strikes + (isCorrect ? 0 : 1) };
+    });
+  }
+
+  nextCard() {
+    const s = this.state;
+    if (s.strikes >= 3) { this.restartRun(); return; }        // failed run → fresh cards
+    if (s.qi + 1 >= s.queue.length) {                          // cleared the run
+      const points = s.runResults.reduce((sum, ok, i) => sum + (ok ? this.PTS[s.queue[i].d] : 0), 0);
+      const correct = s.runResults.filter(Boolean).length;
+      this.setState(st => ({
+        qi: st.queue.length,
+        results: { ...st.results, [st.activeLevel]: { done: true, correct, total: st.queue.length, points } },
+      }), () => this.persist());
+    } else {
+      this.setState(st => ({ qi: st.qi + 1, revealed: false }));
+    }
+  }
+
+  restartRun() {
+    const lvl = this.levelById(this.state.activeLevel);
+    this.setState({ queue: this.buildQueue(lvl), qi: 0, revealed: false, runResults: [], strikes: 0 });
+  }
+
+  replayLevel() { this.restartRun(); }
+
+  continueFromLevel() {
+    const id = this.state.activeLevel;
+    if (id === 1 && !this.state.purchased) {
+      this.setState({ paywall: true, paywallReason: "after1", screen: "map", activeLevel: null });
+    } else {
+      this.backToMap();
+    }
+  }
+
+  openLogin() { this.setState({ loginOpen: true, loginStatus: "idle", loginMessage: "" }); }
+  closeLogin() { this.setState({ loginOpen: false }); }
+  submitLogin() {
+    const email = (this.state.loginEmail || "").trim().toLowerCase();
+    if (!email || !email.includes("@")) {
+      this.setState({ loginStatus: "error", loginMessage: "Enter a valid email address." });
+      return;
+    }
+    this.setState({ loginStatus: "sending", loginMessage: "" });
+    const sentMessage = "If that email has purchased, a login link is on its way — check your inbox.";
+
+    // Check the purchases table first (via a security-definer function that
+    // only ever returns true/false) so the login email only goes to
+    // addresses that actually bought the game — not to anyone who types
+    // in a random email.
+    this.supabase.rpc('email_has_purchased', { check_email: email })
+      .then(({ data: purchased, error }) => {
+        if (error) throw error;
+        if (!purchased) {
+          // Same message whether or not it was found, so this can't be used
+          // to check which emails have purchased.
+          this.setState({ loginStatus: "sent", loginMessage: sentMessage });
+          return;
+        }
+        return this.supabase.auth
+          .signInWithOtp({ email, options: { emailRedirectTo: window.location.origin } })
+          .then(({ error: otpError }) => {
+            if (otpError) throw otpError;
+            this.setState({ loginStatus: "sent", loginMessage: sentMessage });
+          });
+      })
+      .catch(() => {
+        this.setState({ loginStatus: "error", loginMessage: "Something went wrong. Try again in a moment." });
+      });
+  }
+
+  openPaywall() { this.setState({ paywall: true, paywallReason: "default" }); }
+  closePaywall() { this.setState({ paywall: false }); }
+  purchase() {
+    fetch('/api/create-checkout', { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.url) { window.location.href = data.url; }
+        else { console.error('Checkout error:', data.error); }
+      })
+      .catch(err => console.error('Checkout error:', err));
+  }
+
+  togglePledge(i) {
+    this.setState(s => { const p = s.pledges.slice(); p[i] = !p[i]; return { pledges: p }; });
+  }
+  generatePlan() { this.setState({ bossDone: true }, () => this.persist()); }
+
+  scoreFor(id) {
+    const r = this.state.results[id];
+    return (r && r.points) || 0;
+  }
+  isComplete(id) {
+    const r = this.state.results[id];
+    return !!(r && r.done);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const totalPoints = this.levels.reduce((sum, l) => sum + this.scoreFor(l.id), 0);
+
+    // landing level cards
+    const badgeFree = React.createElement("span", { style: { fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: ".08em", color: "#C7F94B", border: "1px solid rgba(199,249,75,.4)", borderRadius: "100px", padding: "4px 10px" } }, "FREE TO PLAY");
+    const badgeLock = React.createElement("span", { style: { fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: ".08em", color: "#6E747C" } }, "🔒 UNLOCK $15");
+    const levelCards = this.levels.map(l => ({
+      kicker: l.kicker, icon: l.icon, tag: l.tag, title: l.title, desc: l.sub,
+      bg: "linear-gradient(160deg,#1B1F26,#14171C)", border: l.id === 5 ? "rgba(255,84,112,.28)" : "rgba(255,255,255,.09)",
+      titleColor: "#F4F1E8", bodyColor: "#9AA0A8", badge: l.free ? badgeFree : badgeLock,
+    }));
+    levelCards.push({
+      kicker: "BOSS LEVEL", icon: "🏆", tag: "#0E1013", title: "Your Family Digital Safety Plan",
+      desc: "Everything you played becomes one filled-in family agreement, plus a completion certificate.",
+      bg: "linear-gradient(160deg,#C7F94B,#A6E02F)", border: "rgba(199,249,75,.5)",
+      titleColor: "#0E1013", bodyColor: "#2C3A0C", badge: badgeLock,
+    });
+
+    // app map
+    const mapLevels = this.levels.map(l => {
+      const locked = !l.free && !s.purchased;
+      const complete = this.isComplete(l.id);
+      const score = this.scoreFor(l.id);
+      return {
+        kicker: l.kicker, icon: l.icon, tag: l.tag, title: l.title, sub: l.sub,
+        onClick: () => this.openLevel(l.id),
+        cardBg: complete ? "linear-gradient(160deg,#18211A,#12181399)" : "linear-gradient(160deg,#1B1F26,#14171C)",
+        cardBorder: complete ? "rgba(199,249,75,.4)" : (locked ? "rgba(255,255,255,.06)" : "rgba(255,255,255,.1)"),
+        iconBg: locked ? "rgba(255,255,255,.06)" : "rgba(199,249,75,.12)",
+        titleColor: locked ? "#8A9098" : "#F4F1E8", bodyColor: locked ? "#6E747C" : "#9AA0A8",
+        opacity: locked ? "0.7" : "1", cursor: "pointer",
+        statusIcon: complete ? "✅" : (locked ? "🔒" : "▶"),
+        statusLabel: complete ? "COMPLETED" : (locked ? "LOCKED" : (l.free ? "FREE · PLAY" : "PLAY")),
+        statusColor: complete ? "#C7F94B" : (locked ? "#6E747C" : "#C7F94B"),
+        scoreLabel: complete ? score.toLocaleString() + " pts" : "6 rounds · easy→hard",
+      };
+    });
+    // boss map card
+    const bossLocked = !s.purchased;
+    mapLevels.push({
+      kicker: "BOSS LEVEL", icon: "🏆", tag: bossLocked ? "#6E747C" : "#C7F94B",
+      title: "Family Safety Plan", sub: "Turn it all into one agreement + certificate.",
+      onClick: () => this.openBoss(),
+      cardBg: s.bossDone ? "linear-gradient(160deg,#18211A,#12181399)" : "linear-gradient(160deg,#1B1F26,#14171C)",
+      cardBorder: s.bossDone ? "rgba(199,249,75,.4)" : (bossLocked ? "rgba(255,255,255,.06)" : "rgba(199,249,75,.3)"),
+      iconBg: bossLocked ? "rgba(255,255,255,.06)" : "rgba(199,249,75,.12)",
+      titleColor: bossLocked ? "#8A9098" : "#F4F1E8", bodyColor: bossLocked ? "#6E747C" : "#9AA0A8",
+      opacity: bossLocked ? "0.7" : "1", cursor: "pointer",
+      statusIcon: s.bossDone ? "✅" : (bossLocked ? "🔒" : "🏆"),
+      statusLabel: s.bossDone ? "CERTIFIED" : (bossLocked ? "LOCKED" : "BUILD IT"),
+      statusColor: s.bossDone ? "#C7F94B" : (bossLocked ? "#6E747C" : "#C7F94B"),
+      scoreLabel: "",
+    });
+
+    // active level
+    const out = {
+      isHome: s.view === "home", isApp: s.view === "app",
+      isMap: s.screen === "map", isLevel: s.screen === "level", isBoss: s.screen === "boss",
+      purchased: s.purchased, notPurchased: !s.purchased,
+      totalPoints, guideHref: this.guideHref,
+      levelCards, mapLevels,
+      startFree: () => this.startFree(), goHome: () => this.goHome(), backToMap: () => this.backToMap(),
+      openPaywall: () => this.openPaywall(), closePaywall: () => this.closePaywall(), purchase: () => this.purchase(),
+      showPaywall: s.paywall,
+      showLogin: s.loginOpen, openLogin: () => this.openLogin(), closeLogin: () => this.closeLogin(),
+      loginEmail: s.loginEmail, setLoginEmail: (e) => this.setState({ loginEmail: e.target.value }),
+      submitLogin: () => this.submitLogin(),
+      loginStatus: s.loginStatus, loginMessage: s.loginMessage,
+      loginButtonLabel: s.loginStatus === "sending" ? "Sending…" : "Send login link",
+      loginMessageColor: s.loginStatus === "error" ? "#FF8098" : "#8A9098",
+      paywallHeadline: s.paywallReason === "after1" ? "Nice — Level 1 done. Ready for the real threats?" :
+                       s.paywallReason === "locked" ? "That Level's locked. Unlock the whole game." :
+                       "Open all 5 Levels + the Boss Level.",
+      // boss
+      bossFormOpen: !s.bossDone, bossDone: s.bossDone,
+      bossName: s.bossName, setBossName: (e) => this.setState({ bossName: e.target.value }),
+      generatePlan: () => this.generatePlan(),
+      bossNameDisplay: (s.bossName && s.bossName.trim()) ? s.bossName.trim() : "Our Family",
+      bossPledges: this.pledgeTexts.map((t, i) => ({
+        text: t, onToggle: () => this.togglePledge(i),
+        check: s.pledges[i] ? "✓" : "",
+        boxBg: s.pledges[i] ? "#C7F94B" : "transparent",
+        boxBorder: s.pledges[i] ? "#C7F94B" : "rgba(255,255,255,.25)",
+        bg: s.pledges[i] ? "rgba(199,249,75,.06)" : "#0E1013",
+        border: s.pledges[i] ? "rgba(199,249,75,.3)" : "rgba(255,255,255,.1)",
+      })),
+      agreedPledges: this.pledgeTexts.map((t, i) => ({ text: t, on: s.pledges[i] })).filter(p => p.on),
+    };
+
+    if (s.screen === "level" && s.activeLevel != null && s.queue.length) {
+      const lvl = this.levelById(s.activeLevel);
+      const total = s.queue.length;
+      const failed = s.strikes >= 3;
+      const cleared = s.qi >= total && !failed;
+      const ended = failed || cleared;
+      const idx = Math.min(s.qi, total - 1);
+      const card = s.queue[idx];
+      const correct = s.runResults.filter(Boolean).length;
+      const runPts = s.runResults.reduce((sum, ok, i) => sum + (ok ? this.PTS[s.queue[i].d] : 0), 0);
+
+      const dots = s.queue.map((c, i) => {
+        let color = "rgba(255,255,255,.14)";
+        if (s.runResults[i] === true) color = "#C7F94B";
+        else if (s.runResults[i] === false) color = "#FF5470";
+        else if (i === s.qi && !ended) color = "rgba(255,255,255,.4)";
+        return { color };
+      });
+      const diffMap = { 1: { label: "EASY", color: "#C7F94B" }, 2: { label: "MEDIUM", color: "#FFC24B" }, 3: { label: "HARD", color: "#FF7A45" } };
+      const diff = diffMap[card.d];
+      const strikeDots = [0, 1, 2].map(i => ({ color: i < s.strikes ? "#FF5470" : "rgba(255,255,255,.16)" }));
+
+      let msg;
+      if (failed) msg = "Three wrong — that ends the run. Tap below for a fresh set of cards and start from easy again.";
+      else if (correct === total) msg = "Flawless — cleared every card, all the way through Hard. That instinct is locked in.";
+      else msg = "Cleared it! The reflex is forming. Talk through any misses together — that's the real win.";
+
+      Object.assign(out, {
+        activeIcon: lvl.icon, activeTag: lvl.tag, activeKicker: lvl.kicker, activeTitle: lvl.title,
+        activeQuestion: lvl.question, activeOptA: lvl.optA, activeOptB: lvl.optB,
+        activePlaying: !ended, activeComplete: ended,
+        activeFailed: failed, activePassed: cleared,
+        activeRevealed: s.revealed, activeAnswering: !s.revealed,
+        activeProgress: "CARD " + Math.min(s.qi + 1, total) + " OF " + total,
+        activeDots: dots, activeStrikes: strikeDots,
+        activeDiffLabel: diff.label, activeDiffColor: diff.color,
+        activeCard: {
+          hasSender: !!card.sender, avatar: card.avatar || "", avatarBg: card.avatarBg || "#C7F94B",
+          sender: card.sender || "", platform: card.platform || "", body: card.body,
+          explain: card.explain,
+          textSize: card.mono ? "18px" : "16px",
+          textFont: card.mono ? "'Space Mono', monospace" : "'Space Grotesk', sans-serif",
+        },
+        answerA: () => this.answer("a"), answerB: () => this.answer("b"), activeNext: () => this.nextCard(),
+        activeNextLabel: failed ? "Try again — new cards →" : (s.qi + 1 >= total ? "See your result →" : "Next card →"),
+        activeFbTitle: s.lastCorrect ? "Correct" : (s.strikes >= 3 ? "Strike 3 — run over" : "Not quite"),
+        activeFbPoints: s.lastCorrect ? ("+" + this.PTS[card.d] + " pts") : "+0 pts",
+        activeFbColor: s.lastCorrect ? "#C7F94B" : "#FF8098",
+        activeFbBg: s.lastCorrect ? "rgba(199,249,75,.10)" : "rgba(255,84,112,.10)",
+        activeFbBorder: s.lastCorrect ? "rgba(199,249,75,.4)" : "rgba(255,84,112,.4)",
+        activeScoreLine: failed ? "✕ ✕ ✕" : (correct + "/" + total),
+        activeScoreColor: failed ? "#FF8098" : "#C7F94B",
+        activeScoreSub: failed ? "run ended" : (runPts.toLocaleString() + " pts earned"),
+        activeResultMsg: msg,
+        activeReplay: () => this.restartRun(),
+        activeReplayLabel: failed ? "New cards — start over →" : "Replay",
+        activeContinue: () => this.continueFromLevel(),
+        activeContinueLabel: (s.activeLevel === 1 && !s.purchased) ? "Unlock the rest →" : "Back to Levels",
+      });
+    }
+
+    return out;
+  }
+}
+</script>
+</body>
+</html>
