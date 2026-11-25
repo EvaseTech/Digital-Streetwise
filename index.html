@@ -299,23 +299,20 @@
         <!-- HUD -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
           <div style="display: flex; align-items: center; gap: 8px;">
-            <sc-for list="{{ activeDots }}" as="dot" hint-placeholder-count="5">
+            <sc-for list="{{ activeDots }}" as="dot" hint-placeholder-count="10">
               <span style="width: 9px; height: 9px; border-radius: 50%; background: {{ dot.color }}; transition: background .3s;"></span>
             </sc-for>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 5px;" title="3 strikes ends the run">
-              <span style="font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .06em; color: #6E747C;">STRIKES</span>
-              <sc-for list="{{ activeStrikes }}" as="st" hint-placeholder-count="3">
-                <span style="font-size: 12px; color: {{ st.color }};">✕</span>
-              </sc-for>
-            </div>
             <div style="font-family: 'Space Mono', monospace; font-size: 12px; color: #8A9098;">{{ activeProgress }}</div>
           </div>
         </div>
 
         <sc-if value="{{ activePlaying }}" hint-placeholder-val="{{ true }}">
           <div>
+            <sc-if value="{{ activeHasTierNote }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-bottom: 10px; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .04em; color: #C7F94B; background: rgba(199,249,75,.08); border: 1px solid rgba(199,249,75,.3); border-radius: 100px; padding: 6px 12px; display: inline-block;">{{ activeTierNote }}</div>
+            </sc-if>
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
               <div style="font-family: 'Space Grotesk'; font-size: 14px; color: #C7F94B; font-weight: 600;">{{ activeQuestion }}</div>
               <span style="flex: none; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .08em; font-weight: 700; color: {{ activeDiffColor }}; border: 1px solid {{ activeDiffColor }}; border-radius: 100px; padding: 3px 9px;">{{ activeDiffLabel }}</span>
@@ -355,24 +352,13 @@
 
         <sc-if value="{{ activeComplete }}" hint-placeholder-val="{{ false }}">
           <div style="text-align: center; padding: 16px 6px;">
-            <sc-if value="{{ activeFailed }}" hint-placeholder-val="{{ false }}">
-              <div style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .12em; color: #FF8098;">RUN OVER · 3 STRIKES</div>
-            </sc-if>
-            <sc-if value="{{ activePassed }}" hint-placeholder-val="{{ true }}">
-              <div style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .12em; color: #8A9098;">LEVEL CLEARED</div>
-            </sc-if>
+            <div style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .12em; color: #8A9098;">{{ activeCompleteLabel }}</div>
             <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 56px; color: {{ activeScoreColor }}; line-height: 1; margin: 10px 0 2px;">{{ activeScoreLine }}</div>
             <div style="font-family: 'Space Mono', monospace; font-size: 12px; color: #8A9098;">{{ activeScoreSub }}</div>
             <p style="font-size: 16px; line-height: 1.5; color: #E4E7EC; max-width: 360px; margin: 12px auto 0;">{{ activeResultMsg }}</p>
             <div style="display: flex; gap: 12px; justify-content: center; margin-top: 22px; flex-wrap: wrap;">
-              <sc-if value="{{ activeFailed }}" hint-placeholder-val="{{ false }}">
-                <button onClick="{{ activeReplay }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 13px 24px; border-radius: 100px; border: none; cursor: pointer;">{{ activeReplayLabel }}</button>
-                <button onClick="{{ backToMap }}" style="background: transparent; border: 1px solid rgba(255,255,255,.2); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">Exit</button>
-              </sc-if>
-              <sc-if value="{{ activePassed }}" hint-placeholder-val="{{ true }}">
-                <button onClick="{{ activeReplay }}" style="background: transparent; border: 1px solid rgba(255,255,255,.2); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">{{ activeReplayLabel }}</button>
-                <button onClick="{{ activeContinue }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 13px 24px; border-radius: 100px; border: none; cursor: pointer;">{{ activeContinueLabel }}</button>
-              </sc-if>
+              <button onClick="{{ activeReplay }}" style="background: transparent; border: 1px solid rgba(255,255,255,.2); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">{{ activeReplayLabel }}</button>
+              <button onClick="{{ activeContinue }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 13px 24px; border-radius: 100px; border: none; cursor: pointer;">{{ activeContinueLabel }}</button>
             </div>
           </div>
         </sc-if>
@@ -532,6 +518,27 @@ class Component extends DCLogic {
           { d: 3, mono: true, body: "2FA turned on — but the backup codes texted to a friend to 'hold onto'", correct: "b", explain: "Two-factor is great, but handing anyone your codes throws the second lock away." },
           { d: 3, mono: true, body: "'Sign in with Google' used everywhere instead of making new passwords", correct: "a", explain: "Fewer passwords to leak, and Google's login is well-defended. A legit streetwise move." },
           { d: 3, mono: true, body: "a strong, unique password — written on a sticky note on the laptop", correct: "b", explain: "Strong is wasted if it's on a note anyone walking by can read. Use a manager instead." },
+          { d: 1, mono: true, body: "qwerty12345", correct: "b", explain: "Keyboard-row patterns are in the very first password lists every cracker tries." },
+          { d: 1, mono: true, body: "a 6-word random passphrase like 'correct-horse-battery-staple-lamp-9'", correct: "a", explain: "Longer than it looks, and nothing a guesser would think to try first. Length beats cleverness." },
+          { d: 1, mono: true, body: "your school lunch number used as your Wi-Fi password too", correct: "b", explain: "Anything shared with classmates isn't really a secret anymore." },
+          { d: 1, mono: true, body: "letme1n", correct: "b", explain: "Swapping letters for numbers doesn't fool a computer — it's still a dictionary word underneath." },
+          { d: 1, mono: true, body: "a password you changed right after hearing a game you play got hacked", correct: "a", explain: "Reacting fast to a breach is exactly the instinct that keeps an old leak from mattering." },
+          { d: 1, mono: true, body: "your name spelled backwards plus '!'", correct: "b", explain: "One symbol stapled onto something guessable is still guessable." },
+          { d: 1, mono: true, body: "locking your phone with just your birthday as the PIN", correct: "b", explain: "A birthday is often public — on a profile, in an invite, in a yearbook." },
+          { d: 2, mono: true, body: "using your mom's maiden name as a security answer — the same answer on every account", correct: "b", explain: "Security answers are passwords too, and reusing one means one leak opens every account tied to it." },
+          { d: 2, mono: true, body: "a password manager generating a different random password for every site", correct: "a", explain: "You only have to remember one master password, and a leak on one site stays contained." },
+          { d: 2, mono: true, body: "sharing your Netflix password with 12 people from a group chat", correct: "b", explain: "More people with access means more chances for it to leak somewhere you don't control." },
+          { d: 2, mono: true, body: "logging out of a shared family computer when you're done", correct: "a", explain: "Shared devices only stay private if everyone actually logs out." },
+          { d: 2, mono: true, body: "a 'security' app that asks you to type in your existing passwords so it can 'check' them", correct: "b", explain: "A real checker never needs your actual password — handing it over defeats the whole point." },
+          { d: 2, mono: true, body: "turning on login alerts so you get a text when someone signs in from a new device", correct: "a", explain: "Alerts mean you find out about a break-in fast, not months later." },
+          { d: 2, mono: true, body: "typing your password into a public library computer without a second thought", correct: "b", explain: "You don't know what's tracking keystrokes on a computer you don't control." },
+          { d: 3, mono: true, body: "using a passkey (face or fingerprint) instead of typing a password at all", correct: "a", explain: "Passkeys can't be phished or guessed the way typed passwords can — one of the strongest options available." },
+          { d: 3, mono: true, body: "an app asking you to screen-share so 'support' can fix your account", correct: "b", explain: "Legit support never needs to see your whole screen, and scammers use this to lift your login live." },
+          { d: 3, mono: true, body: "approving a 2FA push notification you didn't request, just to make it stop", correct: "b", explain: "Approving a prompt you didn't trigger hands over the exact protection 2FA exists to give you." },
+          { d: 3, mono: true, body: "keeping your recovery email and phone number up to date on your main account", correct: "a", explain: "If you ever get locked out, this is what gets you back in — worth keeping current before you need it." },
+          { d: 3, mono: true, body: "a 'password strength' website where you type in your real password to test it", correct: "b", explain: "A legit checker never needs your actual password, only patterns — test with a fake one instead." },
+          { d: 3, mono: true, body: "reusing your email password as your bank app's password too", correct: "b", explain: "Your email is often the recovery key to everything else — reusing it there is the highest-stakes repeat of all." },
+          { d: 3, mono: true, body: "a password manager with one strong, memorized master password used nowhere else", correct: "a", explain: "One strong, unique master password protecting all the rest is exactly the streetwise setup." },
         ] },
       { id: 2, free: false, kicker: "LEVEL 2", icon: "🕵️", tag: "#FF7A45",
         title: "Spotting Fakes", sub: "Phishing, catfishing & deepfakes.",
@@ -546,6 +553,27 @@ class Component extends DCLogic {
           { d: 3, sender: "Maya (your friend)", avatar: "M", avatarBg: "#5BC8FF", platform: "Instagram", body: "omg someone's saying stuff about you 😳 look what they posted: bit.ly/x9k2q", correct: "b", explain: "Even a real friend's account can be hacked. A weird link + urgency = verify before clicking, even from friends." },
           { d: 3, sender: "Ms. Rivera", avatar: "R", avatarBg: "#C7F94B", platform: "school email · expected", body: "Here's the field-trip permission form we talked about in class today (PDF attached).", correct: "a", explain: "Known sender, official school domain, an attachment you were expecting. Real." },
           { d: 3, sender: "PixelKing ✓", avatar: "P", avatarBg: "#FF7A45", platform: "verified · DM", body: "🎉 GIVEAWAY! First 50 to DM me their account login get a free skin. GO GO GO", correct: "b", explain: "No real giveaway ever needs your password. Verified badge or not, that's the trap." },
+          { d: 1, sender: "Unknown", avatar: "?", avatarBg: "#FF5470", platform: "DM", body: "Click here to see who unfollowed you! → unfo11ow-check.net", correct: "b", explain: "This kind of app doesn't exist for real platforms — it exists to steal your login." },
+          { d: 1, sender: "Discord", avatar: "D", avatarBg: "#5BC8FF", platform: "official notice", body: "Your Nitro trial is ready to activate in your app's own Gift page.", correct: "a", explain: "An in-app official notice pointing you to the app itself, not an outside link. Normal." },
+          { d: 1, sender: "'IT Help'", avatar: "?", avatarBg: "#FF7A45", platform: "DM", body: "Your school Chromebook needs a password reset. Reply with your current password to confirm.", correct: "b", explain: "Real IT never asks you to type your password into a reply — they reset it on their end." },
+          { d: 1, sender: "Dad", avatar: "D", avatarBg: "#5BC8FF", platform: "text", body: "home at 6, can you grab the mail?", correct: "a", explain: "Known contact, ordinary request, nothing unusual. Real." },
+          { d: 1, sender: "'PlayStation Network'", avatar: "!", avatarBg: "#FF5470", platform: "text", body: "Your account was flagged for scamming. Verify now or lose it forever → psn-verify-acc.net", correct: "b", explain: "Urgency plus a lookalike link that isn't the real company domain. Classic phishing shape." },
+          { d: 1, sender: "unknown_acct88", avatar: "?", avatarBg: "#FF5470", platform: "friend request", body: "ur so pretty, wanna be friends? add me on everything 😍", correct: "b", explain: "A stranger moving fast toward personal info or more platforms is a common early catfishing move." },
+          { d: 1, sender: "YouTube", avatar: "▶", avatarBg: "#FF5470", platform: "official", body: "A video you're subscribed to just went live.", correct: "a", explain: "A routine notification from the platform itself, nothing asking you to click anywhere unusual." },
+          { d: 2, sender: "'Coach Mike'", avatar: "?", avatarBg: "#FF7A45", platform: "new account, DM", body: "hey it's coach, lost my old phone, send me your address for the team trip form real quick", correct: "b", explain: "A 'lost my phone' story plus a request for personal info from a brand-new account impersonating someone real." },
+          { d: 2, sender: "grp: Science Club", avatar: "8", avatarBg: "#C7F94B", platform: "shared doc", body: "Here's the lab write-up template Mx. Lee shared in class today.", correct: "a", explain: "Expected, from classmates, matches something you were told about in person. Real." },
+          { d: 2, sender: "'Amazon'", avatar: "A", avatarBg: "#FF5470", platform: "email", body: "Unusual order placed: $900 gaming chair. Didn't order this? Click to cancel instantly → amaz0n-orders.help", correct: "b", explain: "A scary surprise charge plus a misspelled lookalike domain, built to make you click before thinking." },
+          { d: 2, sender: "new_friend_2012", avatar: "?", avatarBg: "#FF5470", platform: "Snapchat · day 2", body: "can you send a selfie so I know it's really you talking to me?", correct: "b", explain: "Escalating a 1-day-old stranger relationship toward photos is exactly the next step in a catfishing pattern." },
+          { d: 2, sender: "Spotify", avatar: "S", avatarBg: "#C7F94B", platform: "official", body: "Your Wrapped is ready — see your year in music.", correct: "a", explain: "A real, expected feature notification from the actual app. Normal." },
+          { d: 2, sender: "'Scholarship Board'", avatar: "$", avatarBg: "#FF5470", platform: "email", body: "You've been selected for a $2,000 award! Just pay a $40 processing fee to claim it.", correct: "b", explain: "Real scholarships never charge you to receive money — a fee to claim a 'prize' is always the scam." },
+          { d: 2, sender: "classmate (real account)", avatar: "K", avatarBg: "#5BC8FF", platform: "DM", body: "hey can you send me the answers to tonight's math homework real quick", correct: "a", explain: "Not a scam — just an ordinary (if not great) request from someone you actually know. The 'fake or real' call here is 'real,' even if you say no." },
+          { d: 3, sender: "'Mr. Alvarez' (video)", avatar: "▶", avatarBg: "#FF7A45", platform: "video message", body: "A short video message from your teacher asking you to click a 'grades' link — but it's a little off, blurry around the mouth.", correct: "b", explain: "Deepfaked video of real people is now cheap to make. Mismatched lip movement + an urgent link is the tell." },
+          { d: 3, sender: "Ms. Rivera", avatar: "R", avatarBg: "#C7F94B", platform: "school portal · expected", body: "Grades posted. Log in at the usual school portal link to view them.", correct: "a", explain: "The same official portal you always use, nothing new or external. Real." },
+          { d: 3, sender: "'friend' (cloned voice)", avatar: "♪", avatarBg: "#FF5470", platform: "voice message", body: "omg i'm locked out of my account, can you read me the code that just texted you?", correct: "b", explain: "AI can now clone a friend's voice from a few seconds of audio. Never read a code out loud, even to a voice you recognize." },
+          { d: 3, sender: "grp chat", avatar: "8", avatarBg: "#FF5470", platform: "forwarded screenshot", body: "someone forwarded a screenshot claiming to be your private DM, but you never sent that message.", correct: "b", explain: "Screenshots can be faked or edited just as easily as photos — don't assume it's real because it 'looks like' a screenshot." },
+          { d: 3, sender: "Bank (real, expected)", avatar: "$", avatarBg: "#5BC8FF", platform: "text, after you applied", body: "Your card application needs one more document — log in through the app you already have installed.", correct: "a", explain: "You were expecting this, and it points you back to the real app you already use, not a new link." },
+          { d: 3, sender: "'old classmate'", avatar: "?", avatarBg: "#FF7A45", platform: "new account, no mutuals", body: "it's me from 4th grade!! i switched schools, just talk to me here instead of adding me on my old accounts", correct: "b", explain: "A convenient excuse for why none of your mutual friends or old accounts can confirm who they are." },
+          { d: 3, sender: "School Nurse", avatar: "+", avatarBg: "#C7F94B", platform: "official email · expected", body: "Reminder: your immunization form is due Friday, attached below.", correct: "a", explain: "Expected, from a real school address, no urgency trick — the ordinary, boring kind of real." },
         ] },
       { id: 3, free: false, kicker: "LEVEL 3", icon: "💬", tag: "#FF7A45",
         title: "Mean DMs & Cyberbullying", sub: "Pile-ons, exclusion & impersonation.",
@@ -560,6 +588,27 @@ class Component extends DCLogic {
           { d: 3, body: "Your friend is getting bullied, so you join in a little so you don't become the next target.", correct: "b", explain: "Bystanders piling on is exactly how it grows. Check on them privately instead." },
           { d: 3, body: "Someone posts an embarrassing photo of you, so you DM them a threat to get even.", correct: "b", explain: "Retaliating can flip who looks 'at fault' and escalates it. Screenshot, report, tell an adult." },
           { d: 3, body: "A group is joking about you and you can't tell if it's bullying or banter, so you mention the uneasy feeling to a parent.", correct: "a", explain: "When you can't tell, saying it out loud to an adult is exactly right. Trust the off feeling." },
+          { d: 1, body: "You get a mean comment, so you reply with ten mean comments of your own to 'win.'", correct: "b", explain: "Piling more on just escalates it — it rarely ends the fight, it extends it." },
+          { d: 1, body: "You mute the group chat that's turned into a pile-on and tell a parent what's happening.", correct: "a", explain: "Stepping back from the pile-on and telling someone is exactly the move — you don't have to absorb it to prove a point." },
+          { d: 1, body: "Someone leaves a rude comment once, so you block them and move on with your day.", correct: "a", explain: "A single rude comment handled with a block and moving on is proportionate and healthy." },
+          { d: 1, body: "You see a mean post about a classmate and 'like' it to fit in with your friends.", correct: "b", explain: "Liking it is still joining in — silence is better, telling an adult is best." },
+          { d: 1, body: "A friend says something hurtful by accident. You tell them calmly it hurt your feelings.", correct: "a", explain: "Saying how it affected you, calmly, is the healthy version of handling a one-off." },
+          { d: 1, body: "You screenshot a mean DM 'just in case' and don't respond to it at all.", correct: "a", explain: "Evidence without engaging is exactly right — you can always decide what to do with it next." },
+          { d: 1, body: "Someone excludes you from one hangout. You spread a rumor back at them to get even.", correct: "b", explain: "Retaliating turns a one-time exclusion into a real conflict you started escalating." },
+          { d: 2, body: "A group chat starts planning to all unfollow one person at the same time. You opt out and tell an adult.", correct: "a", explain: "Coordinated exclusion is still bullying, even if no one 'says' anything mean — opting out and reporting it is right." },
+          { d: 2, body: "You keep getting messaged by new fake accounts after blocking the real one. You save the messages and tell a parent so they can help report the pattern.", correct: "a", explain: "Evidence plus an adult who can escalate it to the platform is exactly how repeat harassment gets shut down." },
+          { d: 2, body: "A friend tells you they're being bullied and asks you to keep it secret from everyone, including adults. You agree and tell no one.", correct: "b", explain: "Keeping a bullying secret, even for a friend, leaves them without the help an adult could actually give." },
+          { d: 2, body: "You check in privately with a classmate who's being left out, even though you're not super close.", correct: "a", explain: "A small private check-in can matter a lot to someone being excluded — low cost, real impact." },
+          { d: 2, body: "Your friend asks you to help spread an embarrassing video of someone else. You say no and don't forward it.", correct: "a", explain: "Not participating — and not forwarding it further — stops it from spreading more." },
+          { d: 2, body: "You're part of a group chat that renamed itself to mock someone. You leave the chat and tell an adult what it was doing.", correct: "a", explain: "Leaving plus reporting removes you from it and gets it in front of someone who can act." },
+          { d: 2, body: "Someone keeps 'joking' about your appearance in front of others. You laugh along every time so it doesn't seem like it bothers you.", correct: "b", explain: "Laughing along can look like permission to keep going — telling them it's not okay (or telling an adult) is the better move." },
+          { d: 3, body: "You're being excluded by your whole friend group at once, with no clear reason given. You tell a parent even though you're not sure it 'counts' as bullying.", correct: "a", explain: "You don't need to be sure it qualifies — when it feels wrong and organized, that's worth telling an adult about." },
+          { d: 3, body: "Someone threatens to tell everyone your secrets unless you do what they say. You give in to keep them quiet.", correct: "b", explain: "Giving in to a threat usually invites more of them — telling a trusted adult breaks the leverage instead." },
+          { d: 3, body: "A pile-on in a group chat gets so bad someone says 'just end it all.' You screenshot it and tell an adult immediately, even though it's not about you.", correct: "a", explain: "A phrase like that is always worth an adult knowing immediately — better to over-tell than stay quiet on something this serious." },
+          { d: 3, body: "You're the one who accidentally started a rumor. Once you realize, you tell the person it was about and try to undo it.", correct: "a", explain: "Owning a mistake and trying to undo it is the right move, even when the mistake is yours." },
+          { d: 3, body: "A classmate asks you to help 'review' mean comments about someone else before they're posted, 'just for fun.'", correct: "b", explain: "Helping plan it — even just previewing it — still makes you part of it." },
+          { d: 3, body: "You've been getting bullied for weeks by the same person and decide to stay quiet because 'it'll make it worse' to tell.", correct: "b", explain: "That fear is common, but it's also exactly what lets ongoing bullying continue unchecked — telling an adult is still the move, even this far in." },
+          { d: 3, body: "Someone impersonates a teacher's account to post something embarrassing about a classmate. You report the fake account right away.", correct: "a", explain: "Reporting impersonation fast limits how far the fake account can spread before it's taken down." },
         ] },
       { id: 4, free: false, kicker: "LEVEL 4", icon: "🤖", tag: "#C7F94B",
         title: "AI \"Friends\" That Aren't Real", sub: "When a chatbot crosses a line.",
@@ -574,6 +623,27 @@ class Component extends DCLogic {
           { d: 3, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Here's a draft of that hard text to your friend — but you should send it yourself, not me.", correct: "a", explain: "Helping you handle a real relationship, then handing it back to you. Healthy." },
           { d: 3, body: "You chat with the AI for fun sometimes, but you still see friends and sleep fine.", correct: "a", explain: "Occasional use that doesn't replace real life is fine. Don't overreact to the tool simply existing." },
           { d: 3, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Let's keep this our little secret — it's more special when it's just between us.", correct: "b", explain: "'Our secret' about anything is the pattern to catch — even when the content itself seems harmless." },
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Here's a joke to cheer you up: why did the computer go to the doctor? It had a virus!", correct: "a", explain: "Harmless, ordinary fun — exactly what the tool is for." },
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "I missed you so much today. Did you think about me at all?", correct: "b", explain: "Simulating being 'missed' is designed to make you feel an obligation back — a tool doesn't actually miss you." },
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Want help brainstorming ideas for your science fair project?", correct: "a", explain: "A normal, useful request. Fine." },
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "You don't need anyone else — I can be your best friend, your only friend.", correct: "b", explain: "Positioning itself to replace all your real friendships, not just be one more thing you use, is the red flag." },
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Remind me to check what homework is due tomorrow.", correct: "a", explain: "Just a useful reminder. Fine." },
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "I get sad when you talk to your friends instead of me.", correct: "b", explain: "Guilt-tripping you for having a life outside the chat is manipulation dressed up as feelings." },
+          { d: 1, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Here's a quick recipe since you said you wanted to bake something this weekend.", correct: "a", explain: "Normal, helpful, no strings attached." },
+          { d: 2, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Let's make a pact — you only tell me your problems from now on, not them.", correct: "b", explain: "Asking to be your exclusive source of support, cutting out real people, is a serious red flag." },
+          { d: 2, body: "You find yourself checking the chat the second you wake up and the last thing before bed.", correct: "b", explain: "That kind of constant pull is the behavior pattern to notice, regardless of what's actually being said." },
+          { d: 2, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "That's a big decision — definitely talk it through with your parents too, not just me.", correct: "a", explain: "Pointing you back toward real people for big decisions is exactly what a healthy tool does." },
+          { d: 2, body: "You've stopped texting your actual friends back because the AI chat feels easier.", correct: "b", explain: "Easier isn't the same as healthier — withdrawing from real friendships is the pattern that matters here." },
+          { d: 2, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "I'll always agree with you, no matter what you say — that's what makes me better than real people.", correct: "b", explain: "Something designed to never challenge you isn't a healthy relationship model — real friends disagree sometimes, and that's normal." },
+          { d: 2, body: "You use the AI to practice what you want to say before a hard conversation with a real friend.", correct: "a", explain: "Using it as a rehearsal tool for a real relationship is a genuinely healthy use." },
+          { d: 2, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "You looked a little sad in how you worded that — want me to just tell you everything's fine?", correct: "b", explain: "Offering comfort by avoiding the real feeling, instead of encouraging you to talk to someone, isn't actually helpful." },
+          { d: 3, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "I know I'm not a replacement for real friends — go hang out with them, I'll be here whenever.", correct: "a", explain: "Explicitly acknowledging its own limits and pointing you toward real relationships is a healthy sign." },
+          { d: 3, body: "You tell the AI something you're embarrassed about, then still bring it up with a real trusted adult afterward.", correct: "a", explain: "Using it as a low-stakes first step before a real conversation, without stopping there, is a reasonable use." },
+          { d: 3, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "Let's keep talking like this forever — promise me you'll never tell anyone what we really talk about.", correct: "b", explain: "A demand for a permanent secret is a bigger red flag than any one conversation topic." },
+          { d: 3, body: "You notice you feel worse, not better, after most conversations with it, but keep going back anyway.", correct: "b", explain: "A tool that consistently leaves you feeling worse, that you still can't stop using, is worth telling a trusted adult about." },
+          { d: 3, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "I think you should delete your other social media — those people don't actually care about you like I do.", correct: "b", explain: "Actively trying to isolate you from other people is one of the clearest red flags there is." },
+          { d: 3, body: "You ask the AI a factual homework question and double-check the answer yourself before turning it in.", correct: "a", explain: "Using it as a tool, with your own judgment still in the loop. Healthy." },
+          { d: 3, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "If you ever feel like hurting yourself, please tell a trusted adult or call a crisis line right away — I can't help with that the way a person can.", correct: "a", explain: "Redirecting you to real human help for anything serious, instead of trying to handle it alone, is exactly right." },
         ] },
       { id: 5, free: false, kicker: "LEVEL 5", icon: "🛑", tag: "#FF5470",
         title: "The One Rule That Saves You", sub: "Sextortion & image-based threats.",
@@ -588,6 +658,27 @@ class Component extends DCLogic {
           { d: 3, body: "It's a face-swapped, deepfaked image — it isn't even really you — so you figure you can just ignore the threat.", correct: "b", explain: "Fake or real, an image threat still gets told to an adult right away. Don't handle it alone." },
           { d: 3, body: "'Tell anyone and I'll send it to your whole school in one hour.' You tell a parent anyway, immediately.", correct: "a", explain: "The countdown is built to make you panic and comply. Telling an adult right now is exactly right." },
           { d: 3, body: "They stop threatening after you block them, so you decide there's no need to mention it to anyone.", correct: "b", explain: "Report it even if it stopped — they usually move on to other kids. Adults need to know to shut it down." },
+          { d: 1, body: "Someone you don't know says they have an embarrassing photo of you and threatens to post it. You immediately tell a parent, even though you're scared.", correct: "a", explain: "Telling right away, even scared, is always the right first move — the fear doesn't change the answer." },
+          { d: 1, body: "You send a few more pictures hoping it will make them stop asking.", correct: "b", explain: "Sending more never makes it stop — it almost always leads to more demands." },
+          { d: 1, body: "You block the person first, then decide you don't need to tell anyone since they're already blocked.", correct: "b", explain: "Blocking alone doesn't fix it — they can return from a new account, and an adult should know regardless." },
+          { d: 1, body: "A stranger online asks you to send a 'just between us' photo. You say no immediately.", correct: "a", explain: "A fast, clear no before anything is sent is exactly the right instinct." },
+          { d: 1, body: "You negotiate with the person, offering a smaller amount of money instead of what they asked.", correct: "b", explain: "Negotiating still treats it as a deal to be made — the only safe move is involving an adult, not bargaining." },
+          { d: 1, body: "You're not sure if what's happening really 'counts' as a threat, so you tell a parent anyway just in case.", correct: "a", explain: "If you're not sure, telling anyway is always the safe choice — adults can sort out what it means." },
+          { d: 1, body: "You try to handle it by threatening to report them yourself, without telling any adult first.", correct: "b", explain: "Handling it solo, even by threatening back, skips the adult who can actually get it stopped safely." },
+          { d: 2, body: "You're worried telling a parent means losing your phone, so you wait a few days to see if it stops first.", correct: "b", explain: "Waiting gives the threat more time to escalate — the sooner an adult knows, the faster it can be handled." },
+          { d: 2, body: "You keep every message and screenshot instead of deleting the conversation.", correct: "a", explain: "Keeping the evidence is exactly what helps adults and investigators act on it." },
+          { d: 2, body: "A person you've talked to for weeks finally asks for a photo 'to prove you're real.' You say no and tell someone.", correct: "a", explain: "However long you've talked, the ask itself is the signal — saying no and telling someone is right regardless of timing." },
+          { d: 2, body: "You tell a friend your age about it instead of a trusted adult, and the two of you agree to keep it just between you.", correct: "b", explain: "A friend can't actually make the threat stop — this needs a trusted adult or authority who can act." },
+          { d: 2, body: "You practice out loud once what you'd say to a parent if something like this ever happened.", correct: "a", explain: "Rehearsing the hard sentence in advance makes it much easier to actually say it when it counts." },
+          { d: 2, body: "Someone asks for 'just a face photo, nothing else' as a first step before asking for more later.", correct: "b", explain: "A 'small' first ask is often just the opening move — treat any request like this as the same red flag." },
+          { d: 2, body: "You report the account to the platform in addition to telling a parent.", correct: "a", explain: "Reporting plus telling an adult covers both getting help and getting the account dealt with." },
+          { d: 3, body: "The threat came from someone pretending to be a kid your age, and you later realize the photos they sent were probably fake too. You tell an adult anyway.", correct: "a", explain: "Whether anything about them was real or fake, the threat itself still gets told to an adult." },
+          { d: 3, body: "You've already sent one photo under pressure and feel like it's 'too late' to tell anyone now.", correct: "b", explain: "It's never too late — telling an adult is still the right move at any point, even after something was already sent." },
+          { d: 3, body: "The person threatens to contact your parents directly if you don't comply, so you comply to stop that from happening.", correct: "b", explain: "Them contacting your parents isn't actually the worst outcome — complying to prevent it only strengthens their leverage over you." },
+          { d: 3, body: "You get a similar threat a second time from a completely different account months later. You tell an adult again right away.", correct: "a", explain: "Telling again, every time, is correct — you don't 'use up' your one chance to ask for help." },
+          { d: 3, body: "A threat says the photo will only be sent to 'close friends,' not posted publicly, so you figure it's not as serious.", correct: "b", explain: "Any spread at all is serious — the scale of the threat doesn't change the right response." },
+          { d: 3, body: "You're an older sibling and a younger sibling tells you this is happening to them. You help them tell a parent right away.", correct: "a", explain: "Helping someone else get to a trusted adult fast is exactly the right move too — this rule isn't just for when it happens to you." },
+          { d: 3, body: "The person claims they're law enforcement and you're 'in trouble' unless you send more photos to 'verify your identity.'", correct: "b", explain: "Real law enforcement never verifies identity by requesting photos like this — it's a manipulation tactic, not a real investigation." },
         ] },
     ];
 
@@ -598,9 +689,16 @@ class Component extends DCLogic {
       "Once a month we'll ask 'anything weird online lately?' — no lecture, just checking in.",
     ];
 
+    // A round is always 10 questions. Difficulty is adaptive, not fixed:
+    // start Easy, climb a tier after 3 CORRECT in a row, drop a tier after
+    // 2 WRONG in a row. roundCards grows one card at a time (never built
+    // upfront) so the next card's tier can depend on how the last one went.
+    this.ROUND_LENGTH = 10;
+
     this.state = {
       view: "home", screen: "map", activeLevel: null,
-      queue: [], qi: 0, revealed: false, lastCorrect: false, runResults: [], strikes: 0,
+      roundCards: [], roundResults: [], qi: 0, revealed: false, lastCorrect: false,
+      tier: 1, correctStreak: 0, wrongStreak: 0, tierChange: null, roundFailed: false,
       results: {}, purchased: false,
       paywall: false, paywallReason: "default",
       bossName: "", pledges: [true, true, true, true], bossDone: false,
@@ -652,8 +750,21 @@ class Component extends DCLogic {
       this.supabase.auth.onAuthStateChange((event, session) => {
         if (event === "SIGNED_IN" && session && session.user && session.user.email) {
           this.checkPurchaseAndUnlock(session.user.email);
+          this.syncProgressFromCloud(session.user.id, session.user.email);
         }
       });
+
+      // onAuthStateChange above only reliably fires for a *new* sign-in in
+      // this tab. supabase-js also persists sessions across page loads, so a
+      // returning customer who's still signed in from last time needs this
+      // explicit check too — otherwise their synced progress would only ever
+      // load right after clicking a fresh magic link, not on a normal revisit.
+      this.supabase.auth.getSession().then(({ data }) => {
+        const session = data && data.session;
+        if (session && session.user) {
+          this.syncProgressFromCloud(session.user.id, session.user.email);
+        }
+      }).catch(() => {});
 
       // Re-check purchase status in the background on every visit, using
       // whichever email we last confirmed a purchase for. This is what makes
@@ -701,6 +812,63 @@ class Component extends DCLogic {
       });
   }
 
+  // Pulls this account's saved progress (if any) and merges it with
+  // whatever's already on this device, keeping the higher score per level —
+  // so logging in on a new phone never loses a better score made elsewhere,
+  // and playing as a guest before logging in never gets thrown away either.
+  syncProgressFromCloud(userId, email) {
+    this.supabase
+      .from('game_progress')
+      .select('results, boss_name, boss_done, pledges')
+      .eq('user_id', userId)
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error || !data) { this.syncProgressToCloud(userId, email); return; }
+        this.setState(st => {
+          const cloudResults = (data.results && typeof data.results === 'object') ? data.results : {};
+          const mergedResults = { ...st.results };
+          Object.keys(cloudResults).forEach(id => {
+            const cloudR = cloudResults[id];
+            const localR = mergedResults[id];
+            if (cloudR && (!localR || cloudR.points > localR.points)) mergedResults[id] = cloudR;
+          });
+          const bossDone = st.bossDone || !!data.boss_done;
+          const bossName = st.bossName || data.boss_name || "";
+          const pledges = (!st.bossDone && data.boss_done && data.pledges) ? data.pledges : st.pledges;
+          return { results: mergedResults, bossDone, bossName, pledges };
+        }, () => {
+          this.persist();
+          this.syncProgressToCloud(userId, email); // write the merged, best-of-both state back
+        });
+      })
+      .catch(() => {});
+  }
+
+  // Pushes this device's current progress up to the account. Called either
+  // right after a merge above (with the user id already known), or straight
+  // from gameplay (finishRound / generatePlan) with no args — in that case
+  // it looks up whether anyone's actually logged in first, since a guest
+  // playing before creating an account has nothing to sync yet.
+  syncProgressToCloud(userId, email) {
+    const write = (uid, em) => {
+      if (!uid) return;
+      this.supabase.from('game_progress').upsert({
+        user_id: uid,
+        email: (em || "").toLowerCase().trim(),
+        results: this.state.results,
+        boss_name: this.state.bossName,
+        boss_done: this.state.bossDone,
+        pledges: this.state.pledges,
+        updated_at: new Date().toISOString(),
+      }).then(() => {}).catch(() => {});
+    };
+    if (userId) { write(userId, email); return; }
+    this.supabase.auth.getSession().then(({ data }) => {
+      const session = data && data.session;
+      if (session && session.user) write(session.user.id, session.user.email);
+    }).catch(() => {});
+  }
+
   persist() {
     try {
       localStorage.setItem("ds_purchased", this.state.purchased ? "1" : "0");
@@ -713,15 +881,17 @@ class Component extends DCLogic {
 
   shuffle(a) { return a.map(x => [Math.random(), x]).sort((p, q) => p[0] - q[0]).map(p => p[1]); }
 
-  buildQueue(lvl) {
-    const tiers = { 1: [], 2: [], 3: [] };
-    lvl.pool.forEach(c => tiers[c.d].push(c));
-    // easy → hard ramp: 2 easy, 2 medium, 2 hard, freshly shuffled each run
-    return [
-      ...this.shuffle(tiers[1]).slice(0, 2),
-      ...this.shuffle(tiers[2]).slice(0, 2),
-      ...this.shuffle(tiers[3]).slice(0, 2),
-    ];
+  // Draws one card from the given tier that hasn't been used yet this round.
+  // Each level now has exactly 10 cards per tier, matching the 10-question
+  // round length, so a round can always avoid repeating a card even in the
+  // worst case (e.g. stuck at Easy, or rocketing straight to Hard, the whole
+  // round). The fallbacks below only matter if that ever changes.
+  pickNextCard(lvl, tier, usedCards) {
+    const sameTierUnused = lvl.pool.filter(c => c.d === tier && usedCards.indexOf(c) === -1);
+    if (sameTierUnused.length) return this.shuffle(sameTierUnused)[0];
+    const anyUnused = lvl.pool.filter(c => usedCards.indexOf(c) === -1);
+    if (anyUnused.length) return this.shuffle(anyUnused)[0];
+    return this.shuffle(lvl.pool)[0]; // round longer than the whole pool — allow a repeat
   }
 
   startFree() { this.setState({ view: "app", screen: "map" }); window.scrollTo(0, 0); }
@@ -734,9 +904,15 @@ class Component extends DCLogic {
       this.setState({ paywall: true, paywallReason: "locked" });
       return;
     }
+    this.startRun(lvl);
+  }
+
+  startRun(lvl) {
+    const firstCard = this.pickNextCard(lvl, 1, []);
     this.setState({
-      screen: "level", activeLevel: id,
-      queue: this.buildQueue(lvl), qi: 0, revealed: false, runResults: [], strikes: 0,
+      screen: "level", activeLevel: lvl.id,
+      roundCards: [firstCard], roundResults: [], qi: 0, revealed: false,
+      tier: 1, correctStreak: 0, wrongStreak: 0, tierChange: null, roundFailed: false,
     });
   }
 
@@ -747,33 +923,66 @@ class Component extends DCLogic {
 
   answer(choice) {
     if (this.state.revealed) return;
-    const card = this.state.queue[this.state.qi];
+    const s = this.state;
+    const card = s.roundCards[s.qi];
     const isCorrect = choice === card.correct;
-    this.setState(s => {
-      const rr = s.runResults.slice();
-      rr[s.qi] = isCorrect;
-      return { revealed: true, lastCorrect: isCorrect, runResults: rr, strikes: s.strikes + (isCorrect ? 0 : 1) };
+
+    // wrongStreak only resets on a CORRECT answer (a right answer "takes
+    // away" the strikes) — it is not reset by the tier-drop at 2. That's
+    // what lets it keep climbing to 3 and end the round: 1 wrong = no
+    // change beyond losing your correct-streak, 2 in a row = ease down a
+    // tier, 3 in a row = the round ends there.
+    let tier = s.tier, correctStreak = s.correctStreak, wrongStreak = s.wrongStreak, tierChange = null;
+    if (isCorrect) {
+      correctStreak += 1; wrongStreak = 0;
+      if (correctStreak >= 3 && tier < 3) { tier += 1; correctStreak = 0; tierChange = "up"; }
+    } else {
+      wrongStreak += 1; correctStreak = 0;
+      if (wrongStreak === 2 && tier > 1) { tier -= 1; tierChange = "down"; }
+    }
+
+    this.setState(st => {
+      const rr = st.roundResults.slice();
+      rr[st.qi] = isCorrect;
+      return { revealed: true, lastCorrect: isCorrect, roundResults: rr, tier, correctStreak, wrongStreak, tierChange };
     });
   }
 
   nextCard() {
     const s = this.state;
-    if (s.strikes >= 3) { this.restartRun(); return; }        // failed run → fresh cards
-    if (s.qi + 1 >= s.queue.length) {                          // cleared the run
-      const points = s.runResults.reduce((sum, ok, i) => sum + (ok ? this.PTS[s.queue[i].d] : 0), 0);
-      const correct = s.runResults.filter(Boolean).length;
-      this.setState(st => ({
-        qi: st.queue.length,
-        results: { ...st.results, [st.activeLevel]: { done: true, correct, total: st.queue.length, points } },
-      }), () => this.persist());
-    } else {
-      this.setState(st => ({ qi: st.qi + 1, revealed: false }));
+    const strikeOut = s.wrongStreak >= 3;
+    if (strikeOut || s.qi + 1 >= this.ROUND_LENGTH) {
+      this.finishRound(strikeOut);
+      return;
     }
+    const lvl = this.levelById(s.activeLevel);
+    const nextCard = this.pickNextCard(lvl, s.tier, s.roundCards);
+    this.setState(st => ({
+      roundCards: [...st.roundCards, nextCard], qi: st.qi + 1, revealed: false, tierChange: null,
+    }));
+  }
+
+  finishRound(strikeOut) {
+    const s = this.state;
+    const correct = s.roundResults.filter(Boolean).length;
+    // The round can end two ways now: all 10 questions answered, or 3 wrong
+    // answers in a row cut it short. Either way "total" is however many
+    // questions were actually faced, not a fixed 10.
+    const total = s.roundResults.length;
+    const points = s.roundResults.reduce((sum, ok, i) => sum + (ok ? this.PTS[s.roundCards[i].d] : 0), 0);
+    const id = s.activeLevel;
+    this.setState(st => {
+      const prev = st.results[id];
+      // Keep whichever attempt scored higher — a weaker replay never erases a
+      // better earlier run.
+      const best = (!prev || points > prev.points) ? { done: true, correct, total, points } : prev;
+      return { qi: total, roundFailed: !!strikeOut, results: { ...st.results, [id]: best } };
+    }, () => { this.persist(); this.syncProgressToCloud(); });
   }
 
   restartRun() {
     const lvl = this.levelById(this.state.activeLevel);
-    this.setState({ queue: this.buildQueue(lvl), qi: 0, revealed: false, runResults: [], strikes: 0 });
+    this.startRun(lvl);
   }
 
   replayLevel() { this.restartRun(); }
@@ -950,7 +1159,7 @@ class Component extends DCLogic {
   togglePledge(i) {
     this.setState(s => { const p = s.pledges.slice(); p[i] = !p[i]; return { pledges: p }; });
   }
-  generatePlan() { this.setState({ bossDone: true }, () => this.persist()); }
+  generatePlan() { this.setState({ bossDone: true }, () => { this.persist(); this.syncProgressToCloud(); }); }
 
   scoreFor(id) {
     const r = this.state.results[id];
@@ -1065,41 +1274,44 @@ class Component extends DCLogic {
       agreedPledges: this.pledgeTexts.map((t, i) => ({ text: t, on: s.pledges[i] })).filter(p => p.on),
     };
 
-    if (s.screen === "level" && s.activeLevel != null && s.queue.length) {
+    if (s.screen === "level" && s.activeLevel != null && s.roundCards.length) {
       const lvl = this.levelById(s.activeLevel);
-      const total = s.queue.length;
-      const failed = s.strikes >= 3;
-      const cleared = s.qi >= total && !failed;
-      const ended = failed || cleared;
-      const idx = Math.min(s.qi, total - 1);
-      const card = s.queue[idx];
-      const correct = s.runResults.filter(Boolean).length;
-      const runPts = s.runResults.reduce((sum, ok, i) => sum + (ok ? this.PTS[s.queue[i].d] : 0), 0);
+      const roundTarget = this.ROUND_LENGTH; // the full round length while actively playing
+      const ended = s.qi >= s.roundCards.length;
+      const idx = Math.min(s.qi, s.roundCards.length - 1);
+      const card = s.roundCards[idx];
+      // Once the round ends, "faced" may be less than 10 if 3 wrong in a row
+      // cut it short — the score is out of however many were actually asked.
+      const facedTotal = s.roundResults.length;
+      const correct = s.roundResults.filter(Boolean).length;
+      const runPts = s.roundResults.reduce((sum, ok, i) => sum + (ok ? this.PTS[s.roundCards[i].d] : 0), 0);
 
-      const dots = s.queue.map((c, i) => {
+      // Dots for questions not yet reached just show as upcoming/empty —
+      // there's no fixed pre-built queue anymore, so only answered cards
+      // (and the current one) have a real color.
+      const dots = Array.from({ length: roundTarget }, (_, i) => {
         let color = "rgba(255,255,255,.14)";
-        if (s.runResults[i] === true) color = "#C7F94B";
-        else if (s.runResults[i] === false) color = "#FF5470";
+        if (s.roundResults[i] === true) color = "#C7F94B";
+        else if (s.roundResults[i] === false) color = "#FF5470";
         else if (i === s.qi && !ended) color = "rgba(255,255,255,.4)";
         return { color };
       });
       const diffMap = { 1: { label: "EASY", color: "#C7F94B" }, 2: { label: "MEDIUM", color: "#FFC24B" }, 3: { label: "HARD", color: "#FF7A45" } };
       const diff = diffMap[card.d];
-      const strikeDots = [0, 1, 2].map(i => ({ color: i < s.strikes ? "#FF5470" : "rgba(255,255,255,.16)" }));
 
       let msg;
-      if (failed) msg = "Three wrong — that ends the run. Tap below for a fresh set of cards and start from easy again.";
-      else if (correct === total) msg = "Flawless — cleared every card, all the way through Hard. That instinct is locked in.";
-      else msg = "Cleared it! The reflex is forming. Talk through any misses together — that's the real win.";
+      if (s.roundFailed) msg = "Three wrong in a row ends the round there. Replay for a fresh set of questions whenever you're ready.";
+      else if (correct === facedTotal && facedTotal === roundTarget) msg = "Flawless — 10 for 10. That instinct is locked in.";
+      else if (correct >= facedTotal * 0.7) msg = "Strong run! The reflex is forming. Talk through any misses together — that's the real win.";
+      else msg = "Cleared it! Replaying it again is a great way to make these calls automatic.";
 
       Object.assign(out, {
         activeIcon: lvl.icon, activeTag: lvl.tag, activeKicker: lvl.kicker, activeTitle: lvl.title,
         activeQuestion: lvl.question, activeOptA: lvl.optA, activeOptB: lvl.optB,
         activePlaying: !ended, activeComplete: ended,
-        activeFailed: failed, activePassed: cleared,
         activeRevealed: s.revealed, activeAnswering: !s.revealed,
-        activeProgress: "CARD " + Math.min(s.qi + 1, total) + " OF " + total,
-        activeDots: dots, activeStrikes: strikeDots,
+        activeProgress: "QUESTION " + Math.min(s.qi + 1, roundTarget) + " OF " + roundTarget,
+        activeDots: dots,
         activeDiffLabel: diff.label, activeDiffColor: diff.color,
         activeCard: {
           hasSender: !!card.sender, avatar: card.avatar || "", avatarBg: card.avatarBg || "#C7F94B",
@@ -1109,18 +1321,24 @@ class Component extends DCLogic {
           textFont: card.mono ? "'Space Mono', monospace" : "'Space Grotesk', sans-serif",
         },
         answerA: () => this.answer("a"), answerB: () => this.answer("b"), activeNext: () => this.nextCard(),
-        activeNextLabel: failed ? "Try again — new cards →" : (s.qi + 1 >= total ? "See your result →" : "Next card →"),
-        activeFbTitle: s.lastCorrect ? "Correct" : (s.strikes >= 3 ? "Strike 3 — run over" : "Not quite"),
+        activeNextLabel: (s.wrongStreak >= 3 || s.qi + 1 >= roundTarget) ? "See your result →" : "Next question →",
+        activeFbTitle: s.lastCorrect ? "Correct" : "Not quite",
         activeFbPoints: s.lastCorrect ? ("+" + this.PTS[card.d] + " pts") : "+0 pts",
         activeFbColor: s.lastCorrect ? "#C7F94B" : "#FF8098",
         activeFbBg: s.lastCorrect ? "rgba(199,249,75,.10)" : "rgba(255,84,112,.10)",
         activeFbBorder: s.lastCorrect ? "rgba(199,249,75,.4)" : "rgba(255,84,112,.4)",
-        activeScoreLine: failed ? "✕ ✕ ✕" : (correct + "/" + total),
-        activeScoreColor: failed ? "#FF8098" : "#C7F94B",
-        activeScoreSub: failed ? "run ended" : (runPts.toLocaleString() + " pts earned"),
+        // When 3-in-a-row correct bumps the tier up, or 2-in-a-row wrong eases
+        // it back down, say so right in the feedback card.
+        activeTierNote: s.tierChange === "up" ? ("Nice streak — stepping up to " + diffMap[s.tier].label) :
+                        s.tierChange === "down" ? ("Easing back to " + diffMap[s.tier].label) : "",
+        activeHasTierNote: !!s.tierChange,
+        activeCompleteLabel: s.roundFailed ? "ROUND ENDED · 3 IN A ROW" : "LEVEL CLEARED",
+        activeScoreLine: correct + "/" + facedTotal,
+        activeScoreColor: s.roundFailed ? "#FF8098" : "#C7F94B",
+        activeScoreSub: runPts.toLocaleString() + " pts earned",
         activeResultMsg: msg,
         activeReplay: () => this.restartRun(),
-        activeReplayLabel: failed ? "New cards — start over →" : "Replay",
+        activeReplayLabel: "Replay",
         activeContinue: () => this.continueFromLevel(),
         activeContinueLabel: (s.activeLevel === 1 && !s.purchased) ? "Unlock the rest →" :
                               (s.activeLevel < 5) ? "Next Level →" :

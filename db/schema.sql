@@ -39,3 +39,36 @@ as $$
 $$;
 
 grant execute on function public.email_has_purchased(text) to anon, authenticated;
+
+-- ===========================================================================
+-- Cross-device progress sync — lets a customer's scores, boss-level plan,
+-- and level completion carry over when they log back in on a different
+-- device. Keyed by the Supabase Auth user id (not email), since that's what
+-- RLS can check directly via auth.uid() for both reads and writes.
+create table if not exists game_progress (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  email text,
+  results jsonb not null default '{}'::jsonb,
+  boss_name text default '',
+  boss_done boolean default false,
+  pledges jsonb default '[true,true,true,true]'::jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table game_progress enable row level security;
+
+-- A logged-in user can only ever read or write their own progress row —
+-- never anyone else's. No service_role / server-side writes needed here;
+-- this is written directly from the browser once the user is signed in.
+create policy "select own progress"
+  on game_progress for select
+  using (auth.uid() = user_id);
+
+create policy "insert own progress"
+  on game_progress for insert
+  with check (auth.uid() = user_id);
+
+create policy "update own progress"
+  on game_progress for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
