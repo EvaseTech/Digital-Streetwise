@@ -49,11 +49,36 @@
   .ds2-sticky-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; transform: translateY(100%); transition: transform .25s ease; display: none; }
   .ds2-sticky-bar.show { transform: translateY(0); }
   @media (max-width: 760px) { .ds2-sticky-bar.mobile-enabled { display: block; } }
+
+  /* ===== "How it works" interactive reveal ===== */
+  .ds2-how-stage { position: relative; width: 756px; max-width: 100%; height: 240px; margin: 0 auto; }
+  .ds2-how-card { position: absolute; top: 0; width: 240px; height: 240px; transition: left .55s cubic-bezier(.22,.8,.3,1); }
+  .ds2-how-card-inner { position: relative; width: 100%; height: 100%; border-radius: 22px; background: var(--ds-white); padding: 28px 24px; cursor: pointer; user-select: none; transition: transform .25s ease, opacity .35s ease, box-shadow .25s ease; border: 1px solid transparent; box-shadow: 0 2px 10px rgba(31,58,95,.05); }
+  .ds2-how-card-inner.not-clickable { cursor: default; }
+  .ds2-how-card-inner.has-hovered { border-color: rgba(42,127,134,.35); }
+  .ds2-how-card-inner::before { content: ''; position: absolute; inset: -2px; border-radius: 24px; padding: 2px; background: conic-gradient(from var(--ds-how-angle, 0deg), transparent 0%, var(--ds-teal) 12%, transparent 26%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: opacity .25s ease; pointer-events: none; animation: ds2-rotate-border 1.8s linear infinite; }
+  .ds2-how-card-inner.is-hovering { transform: translateY(-6px); box-shadow: 0 18px 34px -12px rgba(31,58,95,.25); }
+  .ds2-how-card-inner.is-hovering::before { opacity: 1; }
+  @property --ds-how-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+  @keyframes ds2-rotate-border { to { --ds-how-angle: 360deg; } }
+  .ds2-how-card.hidden-card .ds2-how-card-inner { opacity: 0; transform: scale(.88); pointer-events: none; }
+  .ds2-how-card.popping .ds2-how-card-inner { animation: ds2-pop-in .4s cubic-bezier(.34,1.56,.64,1) forwards; }
+  @keyframes ds2-pop-in { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: scale(1); } }
+  .ds2-how-num { font-weight: 800; font-size: 28px; color: var(--ds-teal-dark); line-height: 1; }
+  .ds2-how-card-inner h3 { font-weight: 800; font-size: 18px; margin: 12px 0 8px; color: var(--ds-navy); }
+  .ds2-how-card-inner p { font-size: 13.5px; font-weight: 700; line-height: 1.55; color: var(--ds-navy-soft); margin: 0; }
+  .ds2-tap-hint { position: absolute; bottom: 16px; right: 18px; font-size: 11px; font-weight: 800; color: var(--ds-teal-dark); opacity: .7; }
+  .ds2-how-done { text-align: center; margin-top: 20px; font-size: 13px; font-weight: 700; color: var(--ds-navy-soft); opacity: 0; transition: opacity .4s ease .2s; }
+  .ds2-how-done.show { opacity: 1; }
+
   @media (max-width: 860px) {
     .ds2-hero2 { grid-template-columns: 1fr !important; }
-    .ds2-how-grid { grid-template-columns: 1fr !important; }
     .ds2-trust-grid { max-width: 100% !important; }
     .ds2-pricing2 { grid-template-columns: 1fr !important; padding: 32px !important; }
+    .ds2-how-stage { height: auto !important; display: flex !important; flex-direction: column; gap: 16px; }
+    .ds2-how-card { position: static !important; width: 100% !important; height: auto !important; left: auto !important; }
+    .ds2-how-card .ds2-how-card-inner { opacity: 1 !important; transform: none !important; pointer-events: none !important; cursor: default !important; height: auto !important; }
+    .ds2-tap-hint { display: none !important; }
   }
   @keyframes ds-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes ds-glow { 0%,100% { box-shadow: 0 0 0 1px rgba(199,249,75,.35), 0 0 40px -8px rgba(199,249,75,.5); } 50% { box-shadow: 0 0 0 1px rgba(199,249,75,.6), 0 0 60px -4px rgba(199,249,75,.75); } }
@@ -188,24 +213,32 @@
       </h2>
     </section>
     <section style="max-width: 1180px; margin: 0 auto; padding: 10px 32px 40px;">
-      <div class="ds2-how-grid">
-        <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 22px; padding: 26px; box-shadow: 0 2px 10px rgba(31,58,95,.05);">
-          <div style="font-weight: 800; font-size: 32px; color: var(--ds-coral); line-height: 1;">01</div>
-          <h3 class="ds2-heading" style="font-weight: 800; font-size: 19px; margin: 14px 0 8px; color: var(--ds-navy);">Open it together</h3>
-          <p style="font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--ds-navy-soft); margin: 0;">On the couch, on one phone. No printing, no cutting, no setup. First round starts in under a minute.</p>
+      <div class="ds2-how-stage">
+        <div class="ds2-how-card" style="left: {{ howCard1Left }}; z-index: 5;">
+          <div class="ds2-how-card-inner {{ howInner1Class }}" onClick="{{ howAdvance }}" onMouseEnter="{{ howHover1Enter }}" onMouseLeave="{{ howHover1Leave }}">
+            <div class="ds2-how-num">01</div>
+            <h3 class="ds2-heading">Open it together</h3>
+            <p>On the couch, on one phone. No printing, no cutting, no setup. First round starts in under a minute.</p>
+            <span class="ds2-tap-hint">TAP →</span>
+          </div>
         </div>
-        <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 22px; padding: 26px; box-shadow: 0 2px 10px rgba(31,58,95,.05);">
-          <div style="font-weight: 800; font-size: 32px; color: var(--ds-coral); line-height: 1;">02</div>
-          <h3 class="ds2-heading" style="font-weight: 800; font-size: 19px; margin: 14px 0 8px; color: var(--ds-navy);">They make the call</h3>
-          <p style="font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--ds-navy-soft); margin: 0;">Real-feeling messages, scams and chats. Your kid decides: safe, or a red flag — and gets scored on it.</p>
+        <div class="ds2-how-card {{ howCard2WrapClass }}" style="left: {{ howCard2Left }}; z-index: 4;">
+          <div class="ds2-how-card-inner {{ howInner2Class }}" onClick="{{ howAdvance }}" onMouseEnter="{{ howHover2Enter }}" onMouseLeave="{{ howHover2Leave }}">
+            <div class="ds2-how-num">02</div>
+            <h3 class="ds2-heading">They make the call</h3>
+            <p>Real-feeling messages, scams and chats. Your kid decides: safe, or a red flag — and gets scored on it.</p>
+          </div>
         </div>
-        <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 22px; padding: 26px; box-shadow: 0 2px 10px rgba(31,58,95,.05);">
-          <div style="font-weight: 800; font-size: 32px; color: var(--ds-coral); line-height: 1;">03</div>
-          <h3 class="ds2-heading" style="font-weight: 800; font-size: 19px; margin: 14px 0 8px; color: var(--ds-navy);">The instinct sticks</h3>
-          <p style="font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--ds-navy-soft); margin: 0;">Five Levels build the reflex. The Boss Level turns it into a family safety plan you keep.</p>
+        <div class="ds2-how-card {{ howCard3WrapClass }}" style="left: {{ howCard3Left }}; z-index: 3;">
+          <div class="ds2-how-card-inner not-clickable {{ howInner3Class }}" onMouseEnter="{{ howHover3Enter }}" onMouseLeave="{{ howHover3Leave }}">
+            <div class="ds2-how-num">03</div>
+            <h3 class="ds2-heading">The instinct sticks</h3>
+            <p>Five Levels build the reflex. The Boss Level turns it into a family safety plan you keep.</p>
+          </div>
         </div>
       </div>
-      <div style="text-align: center; margin-top: 40px;">
+      <p class="ds2-how-done {{ howDoneShow }}">Nice — that's the whole loop. Try Level 1 now, free ↓</p>
+      <div style="text-align: center; margin-top: 24px;">
         <button onClick="{{ startFree }}" style="background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 17px; padding: 16px 32px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 10px 24px -8px rgba(242,140,106,.6);">Try Level 1 now — free →</button>
       </div>
     </section>
@@ -769,7 +802,28 @@ class Component extends DCLogic {
       accountStatus: "idle", accountMessage: "",
       heroIdx: 0, heroAnswered: false, heroChoice: null, heroPoints: 0,
       curriculumOpenId: 1,
+      howStep: 1, howCard2Popped: false, howCard3Popped: false, howCard3Slid: false, howDone: false,
+      howHoverActive: null, howHoverSeen: {},
     };
+  }
+
+  howAdvance() {
+    const s = this.state;
+    if (s.howStep === 1) {
+      this.setState({ howStep: 2 });
+      setTimeout(() => { this.setState({ howCard2Popped: true }); }, 160);
+    } else if (s.howStep === 2) {
+      this.setState({ howStep: 3, howCard3Popped: true });
+      setTimeout(() => { this.setState({ howCard3Slid: true }); }, 420);
+      setTimeout(() => { this.setState({ howDone: true }); }, 980);
+    }
+  }
+
+  howHoverEnter(id) {
+    this.setState(s => ({ howHoverActive: id, howHoverSeen: { ...s.howHoverSeen, [id]: true } }));
+  }
+  howHoverLeave(id) {
+    this.setState(s => ({ howHoverActive: s.howHoverActive === id ? null : s.howHoverActive }));
   }
 
   heroAnswer(choice) {
@@ -1352,6 +1406,19 @@ class Component extends DCLogic {
       purchased: s.purchased, notPurchased: !s.purchased,
       totalPoints, guideHref: this.guideHref,
       levelCards, mapLevels, pageBg, curriculumItems,
+      howCard1Left: s.howStep >= 2 ? "0px" : "258px",
+      howCard2Left: "258px",
+      howCard3Left: s.howCard3Slid ? "516px" : "258px",
+      howCard2WrapClass: (s.howStep < 2 ? "hidden-card " : "") + (s.howCard2Popped ? "popping" : ""),
+      howCard3WrapClass: (s.howStep < 3 ? "hidden-card " : "") + (s.howCard3Popped ? "popping" : ""),
+      howInner1Class: (s.howHoverActive === 1 ? "is-hovering " : "") + (s.howHoverSeen[1] ? "has-hovered" : ""),
+      howInner2Class: (s.howHoverActive === 2 ? "is-hovering " : "") + (s.howHoverSeen[2] ? "has-hovered" : ""),
+      howInner3Class: (s.howHoverActive === 3 ? "is-hovering " : "") + (s.howHoverSeen[3] ? "has-hovered" : ""),
+      howAdvance: () => this.howAdvance(),
+      howHover1Enter: () => this.howHoverEnter(1), howHover1Leave: () => this.howHoverLeave(1),
+      howHover2Enter: () => this.howHoverEnter(2), howHover2Leave: () => this.howHoverLeave(2),
+      howHover3Enter: () => this.howHoverEnter(3), howHover3Leave: () => this.howHoverLeave(3),
+      howDoneShow: s.howDone ? "show" : "",
       heroCard,
       heroAnswered: s.heroAnswered, heroNotAnswered: !s.heroAnswered,
       heroPoints: s.heroPoints,
