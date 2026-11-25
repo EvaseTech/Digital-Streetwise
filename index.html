@@ -10,15 +10,51 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body { background: #0E1013; color: #F4F1E8; font-family: "Space Grotesk", sans-serif; -webkit-font-smoothing: antialiased; }
-  a { color: #C7F94B; text-decoration: none; }
-  a:hover { color: #DBFF7A; }
-  ::selection { background: #C7F94B; color: #0E1013; }
+  body { background: #FBF7F0; color: #1F3A5F; font-family: "Nunito", "Space Grotesk", sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #2A7F86; text-decoration: none; }
+  a:hover { color: #1E5C61; }
+  ::selection { background: #F28C6A; color: #FBF7F0; }
+
+  /* ===== Brand palette — applied across the whole app (home, game, modals) ===== */
+  :root {
+    --ds-navy: #1F3A5F;
+    --ds-navy-soft: #5A6B80;
+    --ds-teal: #2A7F86;
+    --ds-teal-dark: #1E5C61;
+    --ds-sage: #A8C5A0;
+    --ds-sage-dark: #4C6B46;
+    --ds-coral: #F28C6A;
+    --ds-coral-dark: #B3542F;
+    --ds-cream: #FBF7F0;
+    --ds-white: #FFFFFF;
+  }
+  .ds2-heading { font-family: 'Baloo 2', sans-serif; }
+  .ds2-body { font-family: 'Nunito', sans-serif; }
+  .ds2-marquee-track { display: inline-flex; white-space: nowrap; animation: ds-marquee 26s linear infinite; }
+  .ds2-how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+  .ds2-trust-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 420px; }
+  .ds2-cta-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .ds2-curriculum-body { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
+  .ds2-curriculum-item.open .ds2-curriculum-body { max-height: 220px; }
+  .ds2-curriculum-item.open .ds2-chevron { transform: rotate(180deg); color: var(--ds-teal-dark); }
+  .ds2-game-btn:active { transform: scale(.96); }
+  .ds2-game-feedback { animation: ds2-pop .25s ease both; }
+  @keyframes ds2-pop { from { transform: scale(.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .ds2-pts-counter.bump { transform: scale(1.18); }
+  .ds2-sticky-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; transform: translateY(100%); transition: transform .25s ease; display: none; }
+  .ds2-sticky-bar.show { transform: translateY(0); }
+  @media (max-width: 760px) { .ds2-sticky-bar.mobile-enabled { display: block; } }
+  @media (max-width: 860px) {
+    .ds2-hero2 { grid-template-columns: 1fr !important; }
+    .ds2-how-grid { grid-template-columns: 1fr !important; }
+    .ds2-trust-grid { max-width: 100% !important; }
+    .ds2-pricing2 { grid-template-columns: 1fr !important; padding: 32px !important; }
+  }
   @keyframes ds-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes ds-glow { 0%,100% { box-shadow: 0 0 0 1px rgba(199,249,75,.35), 0 0 40px -8px rgba(199,249,75,.5); } 50% { box-shadow: 0 0 0 1px rgba(199,249,75,.6), 0 0 60px -4px rgba(199,249,75,.75); } }
   @keyframes ds-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -51,203 +87,219 @@
   }
 </style>
 </helmet>
-<div style="position: relative; overflow-x: hidden; min-height: 100vh; background:
-    radial-gradient(1200px 600px at 78% -8%, rgba(199,249,75,.12), transparent 60%),
-    radial-gradient(900px 700px at 8% 12%, rgba(255,122,69,.10), transparent 55%),
-    #0E1013;">
+<div style="position: relative; overflow-x: hidden; min-height: 100vh; background: {{ pageBg }};">
 
   <!-- ================= HOME / LANDING ================= -->
   <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
-  <div>
+  <div class="ds2-body" style="color: var(--ds-navy);">
     <!-- NAV -->
-    <div class="ds-nav" style="max-width: 1180px; margin: 0 auto; padding: 26px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <div style="width: 38px; height: 38px; border-radius: 11px; background: #C7F94B; display: grid; place-items: center; box-shadow: 0 6px 20px -6px rgba(199,249,75,.7); flex: none;">
-          <span style="font-family: 'Space Mono', monospace; font-weight: 700; font-size: 20px; color: #0E1013;">S</span>
-        </div>
-        <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -.01em;">Digital Streetwise</span>
+    <div class="ds-nav" style="position: sticky; top: 0; z-index: 40; background: rgba(251,247,240,.92); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(31,58,95,.1); max-width: 1180px; margin: 0 auto; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+      <div class="ds2-heading" style="font-weight: 800; font-size: 19px; line-height: 1.1;">
+        <span style="color: var(--ds-navy);">Digital</span><span style="color: var(--ds-teal);">Streetwise</span>
       </div>
-      <div class="ds-nav-links" style="display: flex; align-items: center; gap: 26px; flex-wrap: wrap;">
-        <a href="#how" style="color: #B7BCC4; font-size: 15px; font-weight: 500;">How it works</a>
-        <a href="#inside" style="color: #B7BCC4; font-size: 15px; font-weight: 500;">The Levels</a>
-        <button onClick="{{ openLogin }}" style="background: none; border: none; color: #8A9098; font-family: 'Space Grotesk'; font-weight: 500; font-size: 14px; cursor: pointer; text-decoration: underline;">Already bought it? Log in</button>
-        <button onClick="{{ startFree }}" style="background: transparent; border: 1px solid rgba(255,255,255,.22); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 10px 18px; border-radius: 100px; cursor: pointer;">Play Level 1 free</button>
-        <button onClick="{{ openPaywall }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 10px 20px; border-radius: 100px; border: none; cursor: pointer;">Unlock — $15</button>
+      <div class="ds-nav-links" style="display: flex; align-items: center; gap: 22px; flex-wrap: wrap;">
+        <a href="#how" style="color: var(--ds-navy-soft); font-size: 14px; font-weight: 700;">How it works</a>
+        <a href="#inside" style="color: var(--ds-navy-soft); font-size: 14px; font-weight: 700;">The Levels</a>
+        <button onClick="{{ openLogin }}" style="background: none; border: none; color: var(--ds-navy-soft); font-family: 'Nunito'; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: underline;">Already bought it? Log in</button>
+        <button onClick="{{ startFree }}" style="background: var(--ds-white); border: 2px solid var(--ds-teal); color: var(--ds-teal-dark); font-family: 'Nunito'; font-weight: 800; font-size: 14px; padding: 9px 16px; border-radius: 100px; cursor: pointer;">Play Level 1 free</button>
+        <button onClick="{{ openPaywall }}" style="background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 14px; padding: 9px 18px; border-radius: 100px; border: none; cursor: pointer;">Unlock — $15</button>
       </div>
     </div>
 
     <!-- HERO -->
-    <section class="ds-hero" style="max-width: 1180px; margin: 0 auto; padding: 40px 32px 84px; display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center;">
+    <section class="ds-hero ds2-hero2" style="max-width: 1180px; margin: 0 auto; padding: 44px 32px 40px; display: grid; grid-template-columns: 1.05fr .95fr; gap: 48px; align-items: center;">
       <div>
-        <div style="display: inline-flex; align-items: center; gap: 9px; padding: 7px 15px; border: 1px solid rgba(255,122,69,.4); background: rgba(255,122,69,.08); border-radius: 100px; margin-bottom: 26px; animation: ds-rise .6s both;">
-          <span style="width: 7px; height: 7px; border-radius: 50%; background: #FF7A45; box-shadow: 0 0 10px #FF7A45;"></span>
-          <span style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #FFB596;">Built for the 2026 threat landscape</span>
+        <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(168,197,160,.35); border: 1px solid var(--ds-sage); color: var(--ds-sage-dark); font-family: 'Nunito'; font-weight: 800; font-size: 13px; padding: 7px 14px; border-radius: 100px; margin-bottom: 20px;">
+          👋 For parents of 11–13 year olds
         </div>
-        <h1 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(44px, 6vw, 74px); line-height: .96; letter-spacing: -.03em; margin-bottom: 24px; animation: ds-rise .6s .06s both;">
-          Turn "stranger&nbsp;danger" lectures into <span style="color: #C7F94B;">instincts</span> your kid actually uses.
+        <h1 class="ds2-heading" style="font-weight: 800; font-size: clamp(34px, 4.4vw, 54px); line-height: 1.06; letter-spacing: -.01em; margin-bottom: 18px; color: var(--ds-navy);">
+          Turn "stranger&nbsp;danger" lectures into <span style="color: var(--ds-coral-dark);">instincts</span> your kid actually uses.
         </h1>
-        <p style="font-size: 19px; line-height: 1.55; color: #C3C8CF; max-width: 520px; margin-bottom: 34px; animation: ds-rise .6s .12s both;">
-          A safety game you play together — right in the browser, on any phone or tablet. No printing, no cutting, no prep. Passwords, phishing, cyberbullying, AI "friends," and the one rule that stops sextortion cold. <strong style="color:#F4F1E8; font-weight:600;">Level 1 is free.</strong>
+        <p style="font-size: 17px; font-weight: 600; line-height: 1.6; color: var(--ds-navy-soft); max-width: 500px; margin-bottom: 14px;">
+          A safety game you play together — right in the browser, on any phone or tablet. Passwords, phishing, cyberbullying, AI "friends," and the one rule that stops sextortion cold. <strong>Level 1 is free.</strong>
         </p>
-        <div style="display: flex; align-items: center; gap: 18px; flex-wrap: wrap; animation: ds-rise .6s .18s both;">
-          <button onClick="{{ startFree }}" style="display: inline-flex; align-items: center; gap: 10px; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 17px; padding: 16px 30px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 10px 34px -10px rgba(199,249,75,.8);">
-            Play Level 1 free <span style="font-size: 20px;">→</span>
-          </button>
-          <a href="{{ guideHref }}" target="_blank" style="display: inline-flex; align-items: center; gap: 9px; color: #F4F1E8; font-weight: 600; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,.25); padding-bottom: 3px;">
-            ↓ Free parent safety guide (PDF)
-          </a>
+        <p style="font-size: 14px; font-weight: 700; color: var(--ds-teal-dark); margin-bottom: 24px;">Built by a cybersecurity and tech support professional. No ads, no kid accounts, no data collected.</p>
+
+        <div class="ds2-cta-row" style="margin-bottom: 10px;">
+          <button onClick="{{ startFree }}" style="background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 17px; padding: 17px 32px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 10px 24px -8px rgba(242,140,106,.6);">Play Level 1 Free →</button>
+          <button onClick="{{ openPaywall }}" style="background: var(--ds-white); color: var(--ds-teal-dark); border: 2px solid var(--ds-teal); font-family: 'Nunito'; font-weight: 800; font-size: 16px; padding: 15px 28px; border-radius: 100px; cursor: pointer;">Unlock — $15</button>
         </div>
-        <div style="display: flex; align-items: center; gap: 20px; margin-top: 34px; animation: ds-rise .6s .24s both;">
-          <span style="font-family: 'Space Mono', monospace; font-size: 13px; color: #8A9098;">PLAY IN THE BROWSER</span>
-          <span style="width: 4px; height: 4px; border-radius: 50%; background: #4A5058;"></span>
-          <span style="font-family: 'Space Mono', monospace; font-size: 13px; color: #8A9098;">NOTHING TO PRINT</span>
-          <span style="width: 4px; height: 4px; border-radius: 50%; background: #4A5058;"></span>
-          <span style="font-family: 'Space Mono', monospace; font-size: 13px; color: #8A9098;">AGES 11–13</span>
+        <span style="display: block; margin-bottom: 24px; font-size: 13px; font-weight: 700; color: var(--ds-navy-soft);">Takes 3 minutes to try. No sign-up required for Level 1.</span>
+
+        <div class="ds2-trust-grid">
+          <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 18px; padding: 16px 12px; text-align: center; box-shadow: 0 2px 10px rgba(31,58,95,.05);">
+            <div style="font-size: 22px; margin-bottom: 6px;">🛡️</div>
+            <div style="font-size: 12px; line-height: 1.3; color: var(--ds-navy); font-weight: 800;">Built by a cybersecurity pro</div>
+          </div>
+          <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 18px; padding: 16px 12px; text-align: center; box-shadow: 0 2px 10px rgba(31,58,95,.05);">
+            <div style="font-size: 22px; margin-bottom: 6px;">🔒</div>
+            <div style="font-size: 12px; line-height: 1.3; color: var(--ds-navy); font-weight: 800;">Zero kid data collected</div>
+          </div>
         </div>
       </div>
 
-      <!-- fanned cards -->
-      <div class="ds-hero-cards" style="position: relative; height: 460px; animation: ds-rise .8s .2s both;">
-        <div style="position: absolute; top: 60px; left: 6px; width: 216px; height: 306px; border-radius: 20px; background: linear-gradient(160deg, #1B1F26, #14171C); border: 1px solid rgba(255,255,255,.09); transform: rotate(-13deg); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); padding: 22px;">
-          <span style="font-family: 'Space Mono', monospace; font-size: 11px; color: #FF7A45; letter-spacing: .1em;">LEVEL 3</span>
-          <div style="margin-top: 14px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.05; color: #F4F1E8;">Mean DMs &amp; Cyberbullying</div>
-          <div style="position: absolute; bottom: 22px; left: 22px; right: 22px; font-size: 13px; color: #9AA0A8; line-height: 1.4;">Screenshot. Don't respond. Tell an adult.</div>
-        </div>
-        <div style="position: absolute; top: 24px; right: 0; width: 216px; height: 306px; border-radius: 20px; background: linear-gradient(160deg, #1B1F26, #14171C); border: 1px solid rgba(255,255,255,.09); transform: rotate(12deg); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); padding: 22px;">
-          <span style="font-family: 'Space Mono', monospace; font-size: 11px; color: #C7F94B; letter-spacing: .1em;">LEVEL 4</span>
-          <div style="margin-top: 14px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.05; color: #F4F1E8;">AI "Friends" That Aren't Real</div>
-          <div style="position: absolute; bottom: 22px; left: 22px; right: 22px; font-size: 13px; color: #9AA0A8; line-height: 1.4;">Would you read this chat out loud to me?</div>
-        </div>
-        <div style="position: absolute; top: 82px; left: 50%; transform: translateX(-50%); width: 234px; height: 328px; border-radius: 22px; background: linear-gradient(160deg, #C7F94B, #A6E02F); box-shadow: 0 40px 70px -18px rgba(199,249,75,.4); padding: 26px; animation: ds-float 5s ease-in-out infinite;">
-          <span style="font-family: 'Space Mono', monospace; font-size: 11px; color: #4C5C10; letter-spacing: .1em; font-weight: 700;">BOSS LEVEL</span>
-          <div style="margin-top: 16px; font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 27px; line-height: 1; color: #0E1013;">Your Family Digital Safety Plan</div>
-          <div style="position: absolute; bottom: 26px; left: 26px; right: 26px;">
-            <div style="font-family: 'Space Mono', monospace; font-size: 12px; color: #3E4A11;">STREETWISE POINTS</div>
-            <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 40px; color: #0E1013; line-height: 1;">12,500</div>
+      <!-- interactive hero mini-game -->
+      <div style="position: relative;">
+        <div style="position: absolute; top: -18px; right: 20px; font-size: 36px; z-index: 2; filter: drop-shadow(0 6px 8px rgba(31,58,95,.2));">🦝</div>
+        <div style="background: var(--ds-white); border: 2px solid rgba(42,127,134,.25); border-radius: 28px; padding: 28px; box-shadow: 0 12px 30px rgba(31,58,95,.08);">
+          <div style="display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 13px; color: var(--ds-teal-dark); margin-bottom: 16px;">⚡ Try it right now — 10 second instinct check</div>
+          <div style="background: var(--ds-cream); border: 1px solid rgba(31,58,95,.08); border-radius: 18px; padding: 20px; min-height: 90px; margin-bottom: 18px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+              <div style="width: 34px; height: 34px; border-radius: 50%; background: {{ heroCard.avatarBg }}; display: grid; place-items: center; font-weight: 800; color: var(--ds-white); font-size: 14px;">{{ heroCard.avatar }}</div>
+              <div><div style="font-weight: 800; font-size: 14px; color: var(--ds-navy);">{{ heroCard.sender }}</div><div style="font-size: 11px; font-weight: 700; color: var(--ds-navy-soft);">{{ heroCard.platform }}</div></div>
+            </div>
+            <div style="font-size: 15px; font-weight: 700; line-height: 1.55; color: var(--ds-navy);">{{ heroCard.body }}</div>
+          </div>
+
+          <sc-if value="{{ heroAnswered }}" hint-placeholder-val="{{ false }}">
+            <div class="ds2-game-feedback" style="border-radius: 16px; padding: 16px 18px; margin-bottom: 16px; background: {{ heroFbBg }}; border: 2px solid {{ heroFbBorder }};">
+              <div style="font-weight: 800; font-size: 16px; margin-bottom: 6px; color: {{ heroFbColor }};">{{ heroFbTitle }}</div>
+              <div style="font-size: 13px; font-weight: 700; line-height: 1.5; color: var(--ds-navy-soft);">{{ heroCard.explain }}</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ heroNotAnswered }}" hint-placeholder-val="{{ true }}">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+              <button class="ds2-game-btn" onClick="{{ heroAnswerSafe }}" style="background: rgba(168,197,160,.3); border: 2px solid var(--ds-sage); color: var(--ds-sage-dark); font-family: 'Nunito'; font-weight: 800; font-size: 15px; padding: 15px; border-radius: 14px; cursor: pointer;">✅ Seems Safe</button>
+              <button class="ds2-game-btn" onClick="{{ heroAnswerFlag }}" style="background: rgba(242,140,106,.18); border: 2px solid var(--ds-coral); color: var(--ds-coral-dark); font-family: 'Nunito'; font-weight: 800; font-size: 15px; padding: 15px; border-radius: 14px; cursor: pointer;">🚩 Red Flag</button>
+            </div>
+          </sc-if>
+
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <button onClick="{{ heroTryAnother }}" style="background: var(--ds-cream); border: 1px solid rgba(31,58,95,.12); color: var(--ds-navy); font-family: 'Nunito'; font-weight: 800; font-size: 13px; padding: 9px 16px; border-radius: 100px; cursor: pointer;">🔁 Try another one</button>
+            <span class="ds2-pts-counter" style="font-weight: 800; font-size: 13px; color: var(--ds-teal-dark);">{{ heroPoints }} pts</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- MARQUEE -->
-    <div style="border-top: 1px solid rgba(255,255,255,.07); border-bottom: 1px solid rgba(255,255,255,.07); padding: 16px 0; overflow: hidden; white-space: nowrap;">
-      <div style="display: inline-flex; gap: 44px; animation: ds-marquee 26s linear infinite; font-family: 'Space Mono', monospace; font-size: 14px; letter-spacing: .05em; color: #6E747C;">
-        <span>PASSWORDS &amp; PRIVACY</span><span style="color:#C7F94B;">✦</span><span>PHISHING &amp; DEEPFAKES</span><span style="color:#FF7A45;">✦</span><span>CYBERBULLYING</span><span style="color:#C7F94B;">✦</span><span>AI COMPANIONS</span><span style="color:#FF7A45;">✦</span><span>SEXTORTION DEFENSE</span><span style="color:#C7F94B;">✦</span>
-        <span>PASSWORDS &amp; PRIVACY</span><span style="color:#C7F94B;">✦</span><span>PHISHING &amp; DEEPFAKES</span><span style="color:#FF7A45;">✦</span><span>CYBERBULLYING</span><span style="color:#C7F94B;">✦</span><span>AI COMPANIONS</span><span style="color:#FF7A45;">✦</span><span>SEXTORTION DEFENSE</span><span style="color:#C7F94B;">✦</span>
+    <div style="border-top: 1px solid rgba(31,58,95,.08); border-bottom: 1px solid rgba(31,58,95,.08); padding: 16px 0; overflow: hidden; white-space: nowrap;">
+      <div class="ds2-marquee-track">
+        <span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">PASSWORDS &amp; PRIVACY</span><span style="color: var(--ds-coral); margin-right: 44px;">✦</span><span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">PHISHING &amp; DEEPFAKES</span><span style="color: var(--ds-teal); margin-right: 44px;">✦</span><span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">CYBERBULLYING</span><span style="color: var(--ds-coral); margin-right: 44px;">✦</span><span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">AI COMPANIONS</span><span style="color: var(--ds-teal); margin-right: 44px;">✦</span><span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">SEXTORTION DEFENSE</span><span style="color: var(--ds-coral); margin-right: 44px;">✦</span>
+        <span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">PASSWORDS &amp; PRIVACY</span><span style="color: var(--ds-coral); margin-right: 44px;">✦</span><span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">PHISHING &amp; DEEPFAKES</span><span style="color: var(--ds-teal); margin-right: 44px;">✦</span><span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">CYBERBULLYING</span><span style="color: var(--ds-coral); margin-right: 44px;">✦</span><span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">AI COMPANIONS</span><span style="color: var(--ds-teal); margin-right: 44px;">✦</span><span style="font-weight: 800; font-size: 13px; letter-spacing: .04em; color: var(--ds-navy-soft); margin-right: 44px;">SEXTORTION DEFENSE</span><span style="color: var(--ds-coral); margin-right: 44px;">✦</span>
       </div>
     </div>
 
-    <!-- PROBLEM -->
-    <section style="max-width: 980px; margin: 0 auto; padding: 100px 32px 40px; text-align: center;">
-      <span style="font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #FF7A45;">The problem with the talk</span>
-      <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: clamp(30px, 4vw, 46px); line-height: 1.06; letter-spacing: -.02em; margin: 18px auto 0; max-width: 780px;">
-        A one-time safety lecture is forgotten by dinner. A reflex kicks in the moment a stranger slides into their DMs.
-      </h2>
-      <p style="font-size: 18px; line-height: 1.6; color: #B7BCC4; max-width: 640px; margin: 24px auto 0;">
-        Digital Streetwise trades the awkward "we need to talk" for a game your kid actually wants to win — so the right instinct is already loaded before the real thing ever happens.
-      </p>
-    </section>
-
     <!-- HOW / 3 STEPS -->
-    <section id="how" style="max-width: 1180px; margin: 0 auto; padding: 60px 32px 40px;">
-      <div class="ds-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-        <div style="background: linear-gradient(160deg,#171B21,#12151A); border: 1px solid rgba(255,255,255,.08); border-radius: 22px; padding: 30px;">
-          <div style="font-family: 'Space Mono', monospace; font-size: 34px; font-weight: 700; color: #C7F94B; line-height: 1;">01</div>
-          <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; margin: 14px 0 8px;">Open it together</h3>
-          <p style="font-size: 15px; line-height: 1.55; color: #9AA0A8;">On the couch, on one phone. No printing, no cutting, no setup. First round starts in under a minute.</p>
+    <section id="how" style="max-width: 980px; margin: 0 auto; padding: 56px 32px 10px; text-align: center;">
+      <span class="ds2-heading" style="font-weight: 800; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--ds-coral-dark);">The problem with the talk</span>
+      <h2 class="ds2-heading" style="font-weight: 800; font-size: clamp(26px, 3.6vw, 40px); line-height: 1.1; letter-spacing: -.01em; margin: 14px auto 0; max-width: 760px; color: var(--ds-navy);">
+        A one-time safety lecture is forgotten by dinner. A reflex kicks in the moment it actually matters.
+      </h2>
+    </section>
+    <section style="max-width: 1180px; margin: 0 auto; padding: 10px 32px 40px;">
+      <div class="ds2-how-grid">
+        <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 22px; padding: 26px; box-shadow: 0 2px 10px rgba(31,58,95,.05);">
+          <div style="font-weight: 800; font-size: 32px; color: var(--ds-coral); line-height: 1;">01</div>
+          <h3 class="ds2-heading" style="font-weight: 800; font-size: 19px; margin: 14px 0 8px; color: var(--ds-navy);">Open it together</h3>
+          <p style="font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--ds-navy-soft); margin: 0;">On the couch, on one phone. No printing, no cutting, no setup. First round starts in under a minute.</p>
         </div>
-        <div style="background: linear-gradient(160deg,#171B21,#12151A); border: 1px solid rgba(255,255,255,.08); border-radius: 22px; padding: 30px;">
-          <div style="font-family: 'Space Mono', monospace; font-size: 34px; font-weight: 700; color: #C7F94B; line-height: 1;">02</div>
-          <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; margin: 14px 0 8px;">They make the call</h3>
-          <p style="font-size: 15px; line-height: 1.55; color: #9AA0A8;">Real-feeling messages, scams and chats. Your kid decides: safe, or a red flag — and gets scored on it.</p>
+        <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 22px; padding: 26px; box-shadow: 0 2px 10px rgba(31,58,95,.05);">
+          <div style="font-weight: 800; font-size: 32px; color: var(--ds-coral); line-height: 1;">02</div>
+          <h3 class="ds2-heading" style="font-weight: 800; font-size: 19px; margin: 14px 0 8px; color: var(--ds-navy);">They make the call</h3>
+          <p style="font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--ds-navy-soft); margin: 0;">Real-feeling messages, scams and chats. Your kid decides: safe, or a red flag — and gets scored on it.</p>
         </div>
-        <div style="background: linear-gradient(160deg,#171B21,#12151A); border: 1px solid rgba(255,255,255,.08); border-radius: 22px; padding: 30px;">
-          <div style="font-family: 'Space Mono', monospace; font-size: 34px; font-weight: 700; color: #C7F94B; line-height: 1;">03</div>
-          <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 21px; margin: 14px 0 8px;">The instinct sticks</h3>
-          <p style="font-size: 15px; line-height: 1.55; color: #9AA0A8;">Five Levels build the reflex. The Boss Level turns it into a family safety plan you keep.</p>
+        <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 22px; padding: 26px; box-shadow: 0 2px 10px rgba(31,58,95,.05);">
+          <div style="font-weight: 800; font-size: 32px; color: var(--ds-coral); line-height: 1;">03</div>
+          <h3 class="ds2-heading" style="font-weight: 800; font-size: 19px; margin: 14px 0 8px; color: var(--ds-navy);">The instinct sticks</h3>
+          <p style="font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--ds-navy-soft); margin: 0;">Five Levels build the reflex. The Boss Level turns it into a family safety plan you keep.</p>
         </div>
       </div>
-      <div style="text-align: center; margin-top: 46px;">
-        <button onClick="{{ startFree }}" style="display: inline-flex; align-items: center; gap: 10px; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 17px; padding: 16px 32px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 10px 34px -10px rgba(199,249,75,.8);">
-          Try Level 1 now — free <span style="font-size: 20px;">→</span>
-        </button>
+      <div style="text-align: center; margin-top: 40px;">
+        <button onClick="{{ startFree }}" style="background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 17px; padding: 16px 32px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 10px 24px -8px rgba(242,140,106,.6);">Try Level 1 now — free →</button>
       </div>
     </section>
 
-    <!-- THE LEVELS -->
-    <section id="inside" style="max-width: 1180px; margin: 0 auto; padding: 70px 32px 60px;">
-      <div style="text-align: center; margin-bottom: 44px;">
-        <span style="font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: #C7F94B;">The full ladder</span>
-        <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(30px, 4vw, 50px); line-height: 1.02; letter-spacing: -.025em; margin-top: 14px;">Five Levels and a Boss Level.</h2>
-        <p style="font-size: 16px; color: #9AA0A8; margin-top: 12px;">Level 1 is free. The $15 unlock opens the rest — forever.</p>
+    <!-- THE LEVELS — interactive accordion -->
+    <section id="inside" style="max-width: 1180px; margin: 0 auto; padding: 56px 32px 60px;">
+      <div style="text-align: center; margin-bottom: 36px;">
+        <span class="ds2-heading" style="font-weight: 800; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--ds-coral-dark);">The full ladder</span>
+        <h2 class="ds2-heading" style="font-weight: 800; font-size: 30px; letter-spacing: -.01em; margin: 6px 0 10px; color: var(--ds-navy);">Five Levels and a Boss Level</h2>
+        <p style="font-size: 15px; font-weight: 700; color: var(--ds-navy-soft); max-width: 560px; margin: 0 auto; line-height: 1.6;">Each one builds a specific reflex. Tap any level to see exactly what your kid will practice.</p>
       </div>
-      <div class="ds-grid-3" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;">
-        <sc-for list="{{ levelCards }}" as="lv" hint-placeholder-count="6">
-          <div style="position: relative; background: {{ lv.bg }}; border: 1px solid {{ lv.border }}; border-radius: 20px; padding: 26px; transition: transform .2s, border-color .2s;" style-hover="transform: translateY(-4px); border-color: rgba(199,249,75,.4);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px;">
-              <span style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .08em; color: {{ lv.tag }};">{{ lv.kicker }}</span>
-              <span style="font-size: 24px;">{{ lv.icon }}</span>
+      <sc-for list="{{ curriculumItems }}" as="cu" hint-placeholder-count="6">
+        <div class="ds2-curriculum-item {{ cu.openClass }}" style="border: 1px solid {{ cu.borderColor }}; border-radius: 20px; margin-bottom: 12px; overflow: hidden; background: {{ cu.bg }}; transition: border-color .2s ease;">
+          <div onClick="{{ cu.toggle }}" tabindex="0" role="button" style="display: flex; align-items: center; justify-content: space-between; padding: 18px 22px; cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <span style="width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 19px; background: rgba(168,197,160,.35); flex: none;">{{ cu.icon }}</span>
+              <div>
+                <div style="font-size: 11px; font-weight: 800; letter-spacing: .03em; color: var(--ds-navy-soft);">{{ cu.kicker }}{{ cu.freeBadge }}</div>
+                <div class="ds2-heading" style="font-weight: 800; font-size: 17px; color: var(--ds-navy);">{{ cu.title }}</div>
+              </div>
             </div>
-            <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 22px; line-height: 1.06; margin-bottom: 10px; color: {{ lv.titleColor }};">{{ lv.title }}</h3>
-            <p style="font-size: 14px; line-height: 1.5; color: {{ lv.bodyColor }};">{{ lv.desc }}</p>
-            <div style="margin-top: 16px;">{{ lv.badge }}</div>
+            <span class="ds2-chevron" style="transition: transform .2s; color: var(--ds-navy-soft); font-size: 18px;">▾</span>
           </div>
-        </sc-for>
-      </div>
+          <div class="ds2-curriculum-body">
+            <div style="padding: 0 22px 22px 80px; font-size: 14px; font-weight: 700; line-height: 1.6; color: var(--ds-navy-soft);">{{ cu.detail }}</div>
+          </div>
+        </div>
+      </sc-for>
     </section>
 
     <!-- PRICING -->
-    <section style="max-width: 1180px; margin: 0 auto; padding: 60px 32px 110px;">
-      <div class="ds-pricing" style="background: linear-gradient(150deg, #171B21, #101318); border: 1px solid rgba(199,249,75,.25); border-radius: 32px; padding: 60px; display: grid; grid-template-columns: 1.2fr .8fr; gap: 60px; align-items: center; animation: ds-glow 5s ease-in-out infinite;">
+    <section id="pricing" style="max-width: 1180px; margin: 0 auto; padding: 0 32px 56px;">
+      <div class="ds2-pricing2" style="background: var(--ds-navy); border-radius: 32px; padding: 48px; color: var(--ds-white); display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center;">
         <div>
-          <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(32px, 4.2vw, 50px); line-height: 1.02; letter-spacing: -.025em; margin-bottom: 20px;">Unlock the whole game.</h2>
-          <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 12px;">
-            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">All 5 Levels + the Boss Level, playable in your browser</span></div>
-            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">Auto-scored Streetwise Points &amp; saved progress</span></div>
-            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">A family safety plan that fills itself in as you play</span></div>
-            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">Free downloadable parent safety guide (PDF)</span></div>
-            <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color:#C7F94B; font-size: 18px;">✓</span><span style="font-size: 16px; color: #D5D9DF;">Kept current as 2026 threats change — no reprints</span></div>
-          </div>
-          <p style="font-size: 15px; line-height: 1.6; color: #8A9098; max-width: 460px;">Priced above a $5 checklist and under a $40 course — because you're paying for something to <em style="color:#C3C8CF; font-style: normal;">do</em> with your kid, not another PDF to skim and forget.</p>
+          <span style="display: inline-flex; align-items: center; gap: 8px; background: rgba(242,140,106,.18); border: 1px solid var(--ds-coral); color: #FFD9C4; font-family: 'Nunito'; font-weight: 800; font-size: 13px; padding: 6px 13px; border-radius: 100px; margin-bottom: 18px;">🔓 Full unlock</span>
+          <div class="ds2-heading" style="font-weight: 800; font-size: 28px; margin-bottom: 14px;">Everything past Level 1, for one payment — no subscription.</div>
+          <ul style="list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 12px;">
+            <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 15px; font-weight: 700; color: #DCE4EC;"><span style="color: var(--ds-coral); font-weight: 800; flex: none;">✓</span>All 5 Levels + the Boss Level, playable in your browser</li>
+            <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 15px; font-weight: 700; color: #DCE4EC;"><span style="color: var(--ds-coral); font-weight: 800; flex: none;">✓</span>Create an account — progress and scores follow your kid to any device</li>
+            <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 15px; font-weight: 700; color: #DCE4EC;"><span style="color: var(--ds-coral); font-weight: 800; flex: none;">✓</span>Difficulty adjusts automatically as they get faster and more confident</li>
+            <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 15px; font-weight: 700; color: #DCE4EC;"><span style="color: var(--ds-coral); font-weight: 800; flex: none;">✓</span>Ends in a real, printable family safety plan and certificate</li>
+            <li style="display: flex; align-items: flex-start; gap: 10px; font-size: 15px; font-weight: 700; color: #DCE4EC;"><span style="color: var(--ds-coral); font-weight: 800; flex: none;">✓</span>Free parent safety guide (PDF) included</li>
+          </ul>
         </div>
-        <div style="text-align: center; background: #0E1013; border: 1px solid rgba(255,255,255,.1); border-radius: 24px; padding: 36px 30px;">
-          <div style="font-family: 'Space Mono', monospace; font-size: 13px; letter-spacing: .1em; color: #8A9098;">FULL UNLOCK</div>
-          <div style="display: flex; align-items: flex-start; justify-content: center; gap: 4px; margin: 12px 0 4px;">
-            <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 30px; color: #F4F1E8; margin-top: 8px;">$</span>
-            <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 72px; color: #C7F94B; line-height: .9;">15</span>
-          </div>
-          <div style="font-size: 14px; color: #8A9098; margin-bottom: 22px;">One-time · yours forever</div>
-          <button onClick="{{ openPaywall }}" style="display: block; width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 17px; padding: 16px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 12px 32px -10px rgba(199,249,75,.8);">Unlock everything →</button>
-          <button onClick="{{ startFree }}" style="display: block; width: 100%; margin-top: 12px; background: transparent; color: #B7BCC4; font-family: 'Space Grotesk'; font-weight: 600; font-size: 14px; padding: 6px; border: none; cursor: pointer;">or play Level 1 free first</button>
+        <div style="background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 24px; padding: 32px; text-align: center;">
+          <div class="ds2-heading" style="font-weight: 800; font-size: 48px; color: var(--ds-white); line-height: 1;"><span style="font-size: 20px; vertical-align: top;">$</span>15</div>
+          <div style="font-size: 13px; font-weight: 700; color: #AEBBC9; margin: 8px 0 22px;">One-time payment · yours forever</div>
+          <button onClick="{{ openPaywall }}" style="width: 100%; background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 17px; padding: 16px; border-radius: 100px; border: none; cursor: pointer; margin-bottom: 10px;">Unlock everything →</button>
+          <div style="font-size: 12px; font-weight: 700; color: #8FA0B2;">🔒 Secure checkout via Stripe</div>
         </div>
       </div>
-      <p style="text-align: center; font-family: 'Space Mono', monospace; font-size: 12px; color: #565C64; margin-top: 40px; line-height: 1.6;">
-        Digital Streetwise · a middle-school online safety game &amp; guide<br>Grounded in the 2026 threat landscape — AI companions &amp; deepfake-based sextortion, not generic advice.
-      </p>
     </section>
+
+    <!-- PDF GUIDE BANNER -->
+    <section style="max-width: 1180px; margin: 0 auto; padding: 0 32px 56px;">
+      <div style="background: rgba(42,127,134,.1); border: 1px solid rgba(42,127,134,.25); border-radius: 24px; padding: 30px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+        <div>
+          <div class="ds2-heading" style="font-weight: 800; font-size: 20px; margin-bottom: 6px; color: var(--ds-navy);">Want the quick version first?</div>
+          <div style="font-size: 14px; font-weight: 700; color: var(--ds-navy-soft);">Free parent safety guide — a quick PDF rundown, no game required.</div>
+        </div>
+        <a href="{{ guideHref }}" target="_blank" style="background: var(--ds-white); border: 2px solid var(--ds-teal); color: var(--ds-teal-dark); font-family: 'Nunito'; font-weight: 800; font-size: 14px; padding: 13px 22px; border-radius: 100px; cursor: pointer; display: inline-block;">↓ Download the guide</a>
+      </div>
+    </section>
+
+    <p style="text-align: center; font-size: 12px; font-weight: 700; color: var(--ds-navy-soft); margin: 0 0 56px; line-height: 1.6;">
+      Digital Streetwise · a middle-school online safety game &amp; guide<br>Grounded in the 2026 threat landscape — AI companions &amp; deepfake-based sextortion, not generic advice.
+    </p>
+
+    <!-- STICKY MOBILE BAR -->
+    <div class="ds2-sticky-bar mobile-enabled" style="background: var(--ds-white); border-top: 1px solid rgba(31,58,95,.1); padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); box-shadow: 0 -4px 16px rgba(31,58,95,.08);">
+      <button onClick="{{ startFree }}" style="width: 100%; background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 15px; padding: 14px; border-radius: 100px; border: none; cursor: pointer;">Play Level 1 Free — No Sign-Up</button>
+    </div>
   </div>
   </sc-if>
 
   <!-- ================= GAME APP ================= -->
   <sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
-  <div style="min-height: 100vh;">
+  <div class="ds2-body" style="min-height: 100vh; color: var(--ds-navy);">
     <!-- APP BAR -->
-    <div style="position: sticky; top: 0; z-index: 20; backdrop-filter: blur(12px); background: rgba(14,16,19,.82); border-bottom: 1px solid rgba(255,255,255,.07);">
+    <div style="position: sticky; top: 0; z-index: 20; backdrop-filter: blur(12px); background: rgba(251,247,240,.92); border-bottom: 1px solid rgba(31,58,95,.1);">
       <div class="ds-appbar" style="max-width: 1080px; margin: 0 auto; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-        <button onClick="{{ goHome }}" style="display: flex; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; min-width: 0;">
-          <div style="width: 32px; height: 32px; border-radius: 9px; background: #C7F94B; display: grid; place-items: center; flex: none;"><span style="font-family: 'Space Mono', monospace; font-weight: 700; font-size: 17px; color: #0E1013;">S</span></div>
-          <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 16px; color: #F4F1E8; white-space: nowrap;">Digital Streetwise</span>
+        <button onClick="{{ goHome }}" class="ds2-heading" style="display: flex; align-items: center; gap: 10px; background: none; border: none; cursor: pointer; min-width: 0; font-weight: 800; font-size: 17px;">
+          <span style="color: var(--ds-navy);">Digital</span><span style="color: var(--ds-teal);">Streetwise</span>
         </button>
         <div class="ds-appbar-right" style="display: flex; align-items: center; gap: 18px;">
-          <div style="display: flex; align-items: center; gap: 8px; background: rgba(199,249,75,.1); border: 1px solid rgba(199,249,75,.28); padding: 7px 14px; border-radius: 100px;">
+          <div style="display: flex; align-items: center; gap: 8px; background: rgba(42,127,134,.1); border: 1px solid rgba(42,127,134,.3); padding: 7px 14px; border-radius: 100px;">
             <span style="font-size: 14px;">⚡</span>
-            <span style="font-family: 'Space Mono', monospace; font-size: 13px; color: #C7F94B; font-weight: 700;">{{ totalPoints }} pts</span>
+            <span style="font-size: 13px; color: var(--ds-teal-dark); font-weight: 800;">{{ totalPoints }} pts</span>
           </div>
           <sc-if value="{{ purchased }}" hint-placeholder-val="{{ false }}">
-            <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: #6E747C;">FULL ACCESS ✓</span>
+            <span style="font-size: 12px; color: var(--ds-navy-soft); font-weight: 700;">FULL ACCESS ✓</span>
           </sc-if>
           <sc-if value="{{ notPurchased }}" hint-placeholder-val="{{ true }}">
-            <button onClick="{{ openPaywall }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 100px; border: none; cursor: pointer;">Unlock — $15</button>
+            <button onClick="{{ openPaywall }}" style="background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 13px; padding: 8px 16px; border-radius: 100px; border: none; cursor: pointer;">Unlock — $15</button>
           </sc-if>
         </div>
       </div>
@@ -257,26 +309,26 @@
     <sc-if value="{{ isMap }}" hint-placeholder-val="{{ true }}">
     <div style="max-width: 1080px; margin: 0 auto; padding: 46px 28px 90px; animation: ds-fade .3s both;">
       <div style="margin-bottom: 34px;">
-        <h1 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: clamp(30px,4vw,44px); letter-spacing: -.02em; line-height: 1;">Choose a Level</h1>
-        <p style="font-size: 16px; color: #9AA0A8; margin-top: 10px;">Play with your kid. Every correct call earns Streetwise Points.</p>
+        <h1 class="ds2-heading" style="font-weight: 800; font-size: clamp(28px,3.6vw,40px); letter-spacing: -.01em; line-height: 1.05; color: var(--ds-navy);">Choose a Level</h1>
+        <p style="font-size: 15px; font-weight: 700; color: var(--ds-navy-soft); margin-top: 10px;">Play with your kid. Every correct call earns Streetwise Points.</p>
       </div>
       <div class="ds-grid-2" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
         <sc-for list="{{ mapLevels }}" as="lv" hint-placeholder-count="6">
-          <button onClick="{{ lv.onClick }}" style="position: relative; text-align: left; background: {{ lv.cardBg }}; border: 1px solid {{ lv.cardBorder }}; border-radius: 22px; padding: 26px; cursor: {{ lv.cursor }}; opacity: {{ lv.opacity }}; transition: transform .18s, border-color .18s;" style-hover="transform: translateY(-3px);">
+          <button onClick="{{ lv.onClick }}" style="position: relative; text-align: left; background: {{ lv.cardBg }}; border: 1px solid {{ lv.cardBorder }}; border-radius: 22px; padding: 26px; cursor: {{ lv.cursor }}; opacity: {{ lv.opacity }}; transition: transform .18s, border-color .18s; box-shadow: 0 2px 10px rgba(31,58,95,.05);" style-hover="transform: translateY(-3px);">
             <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px;">
               <div style="display: flex; align-items: center; gap: 12px;">
                 <div style="width: 46px; height: 46px; border-radius: 13px; background: {{ lv.iconBg }}; display: grid; place-items: center; font-size: 22px;">{{ lv.icon }}</div>
                 <div>
-                  <div style="font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: {{ lv.tag }};">{{ lv.kicker }}</div>
-                  <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 20px; color: {{ lv.titleColor }}; line-height: 1.1; margin-top: 3px;">{{ lv.title }}</div>
+                  <div style="font-size: 11px; font-weight: 800; letter-spacing: .03em; color: {{ lv.tag }};">{{ lv.kicker }}</div>
+                  <div class="ds2-heading" style="font-weight: 800; font-size: 19px; color: {{ lv.titleColor }}; line-height: 1.15; margin-top: 3px;">{{ lv.title }}</div>
                 </div>
               </div>
               <span style="font-size: 20px;">{{ lv.statusIcon }}</span>
             </div>
-            <p style="font-size: 14px; line-height: 1.5; color: {{ lv.bodyColor }}; min-height: 42px;">{{ lv.sub }}</p>
+            <p style="font-size: 14px; font-weight: 700; line-height: 1.5; color: {{ lv.bodyColor }}; min-height: 42px;">{{ lv.sub }}</p>
             <div style="margin-top: 16px; display: flex; align-items: center; justify-content: space-between;">
-              <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: {{ lv.statusColor }};">{{ lv.statusLabel }}</span>
-              <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: #6E747C;">{{ lv.scoreLabel }}</span>
+              <span style="font-size: 12px; font-weight: 800; color: {{ lv.statusColor }};">{{ lv.statusLabel }}</span>
+              <span style="font-size: 12px; font-weight: 700; color: var(--ds-navy-soft);">{{ lv.scoreLabel }}</span>
             </div>
           </button>
         </sc-for>
@@ -287,15 +339,15 @@
     <!-- LEVEL ROUND -->
     <sc-if value="{{ isLevel }}" hint-placeholder-val="{{ false }}">
     <div style="max-width: 620px; margin: 0 auto; padding: 32px 24px 80px; animation: ds-fade .3s both;">
-      <button onClick="{{ backToMap }}" style="background: none; border: none; color: #8A9098; font-family: 'Space Grotesk'; font-size: 14px; cursor: pointer; margin-bottom: 18px;">← All Levels</button>
+      <button onClick="{{ backToMap }}" style="background: none; border: none; color: var(--ds-navy-soft); font-family: 'Nunito'; font-weight: 700; font-size: 14px; cursor: pointer; margin-bottom: 18px;">← All Levels</button>
 
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
         <span style="font-size: 24px;">{{ activeIcon }}</span>
-        <span style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .08em; color: {{ activeTag }};">{{ activeKicker }}</span>
+        <span style="font-size: 12px; font-weight: 800; letter-spacing: .03em; color: {{ activeTag }};">{{ activeKicker }}</span>
       </div>
-      <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.02em; line-height: 1.02; margin-bottom: 22px;">{{ activeTitle }}</h2>
+      <h2 class="ds2-heading" style="font-weight: 800; font-size: 28px; letter-spacing: -.01em; line-height: 1.08; margin-bottom: 22px; color: var(--ds-navy);">{{ activeTitle }}</h2>
 
-      <div style="background: linear-gradient(180deg, #171B21, #12151A); border: 1px solid rgba(255,255,255,.09); border-radius: 26px; padding: 28px; box-shadow: 0 40px 90px -30px rgba(0,0,0,.8);">
+      <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 26px; padding: 28px; box-shadow: 0 12px 30px rgba(31,58,95,.08);">
         <!-- HUD -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -304,47 +356,47 @@
             </sc-for>
           </div>
           <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="font-family: 'Space Mono', monospace; font-size: 12px; color: #8A9098;">{{ activeProgress }}</div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--ds-navy-soft);">{{ activeProgress }}</div>
           </div>
         </div>
 
         <sc-if value="{{ activePlaying }}" hint-placeholder-val="{{ true }}">
           <div>
             <sc-if value="{{ activeHasTierNote }}" hint-placeholder-val="{{ false }}">
-              <div style="margin-bottom: 10px; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .04em; color: #C7F94B; background: rgba(199,249,75,.08); border: 1px solid rgba(199,249,75,.3); border-radius: 100px; padding: 6px 12px; display: inline-block;">{{ activeTierNote }}</div>
+              <div style="margin-bottom: 10px; font-size: 11px; font-weight: 800; letter-spacing: .02em; color: var(--ds-teal-dark); background: rgba(42,127,134,.1); border: 1px solid rgba(42,127,134,.3); border-radius: 100px; padding: 6px 12px; display: inline-block;">{{ activeTierNote }}</div>
             </sc-if>
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px;">
-              <div style="font-family: 'Space Grotesk'; font-size: 14px; color: #C7F94B; font-weight: 600;">{{ activeQuestion }}</div>
-              <span style="flex: none; font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: .08em; font-weight: 700; color: {{ activeDiffColor }}; border: 1px solid {{ activeDiffColor }}; border-radius: 100px; padding: 3px 9px;">{{ activeDiffLabel }}</span>
+              <div style="font-family: 'Nunito'; font-size: 14px; color: var(--ds-teal-dark); font-weight: 800;">{{ activeQuestion }}</div>
+              <span style="flex: none; font-size: 10px; letter-spacing: .04em; font-weight: 800; color: {{ activeDiffColor }}; border: 1px solid {{ activeDiffColor }}; border-radius: 100px; padding: 3px 9px;">{{ activeDiffLabel }}</span>
             </div>
-            <div style="background: #0E1013; border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 20px; min-height: 150px;">
+            <div style="background: var(--ds-cream); border: 1px solid rgba(31,58,95,.08); border-radius: 18px; padding: 20px; min-height: 150px;">
               <sc-if value="{{ activeCard.hasSender }}" hint-placeholder-val="{{ true }}">
-                <div style="display: flex; align-items: center; gap: 11px; padding-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,.07); margin-bottom: 14px;">
-                  <div style="width: 38px; height: 38px; border-radius: 50%; background: {{ activeCard.avatarBg }}; display: grid; place-items: center; font-family: 'Space Mono', monospace; font-weight: 700; color: #0E1013; font-size: 15px;">{{ activeCard.avatar }}</div>
+                <div style="display: flex; align-items: center; gap: 11px; padding-bottom: 14px; border-bottom: 1px solid rgba(31,58,95,.08); margin-bottom: 14px;">
+                  <div style="width: 38px; height: 38px; border-radius: 50%; background: {{ activeCard.avatarBg }}; display: grid; place-items: center; font-weight: 800; color: var(--ds-white); font-size: 15px;">{{ activeCard.avatar }}</div>
                   <div>
-                    <div style="font-weight: 600; font-size: 15px; color: #F4F1E8;">{{ activeCard.sender }}</div>
-                    <div style="font-family: 'Space Mono', monospace; font-size: 11px; color: #6E747C;">{{ activeCard.platform }}</div>
+                    <div style="font-weight: 800; font-size: 15px; color: var(--ds-navy);">{{ activeCard.sender }}</div>
+                    <div style="font-size: 11px; font-weight: 700; color: var(--ds-navy-soft);">{{ activeCard.platform }}</div>
                   </div>
                 </div>
               </sc-if>
-              <p style="font-size: {{ activeCard.textSize }}; line-height: 1.5; color: #E4E7EC; font-family: {{ activeCard.textFont }};">{{ activeCard.body }}</p>
+              <p style="font-size: {{ activeCard.textSize }}; font-weight: 700; line-height: 1.5; color: var(--ds-navy); font-family: {{ activeCard.textFont }};">{{ activeCard.body }}</p>
             </div>
 
             <sc-if value="{{ activeRevealed }}" hint-placeholder-val="{{ false }}">
               <div style="margin-top: 16px; border-radius: 16px; padding: 16px 18px; background: {{ activeFbBg }}; border: 1px solid {{ activeFbBorder }};">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                  <span style="font-weight: 700; font-size: 15px; color: {{ activeFbColor }};">{{ activeFbTitle }}</span>
-                  <span style="font-family: 'Space Mono', monospace; font-size: 12px; color: {{ activeFbColor }};">{{ activeFbPoints }}</span>
+                  <span style="font-weight: 800; font-size: 15px; color: {{ activeFbColor }};">{{ activeFbTitle }}</span>
+                  <span style="font-size: 12px; font-weight: 800; color: {{ activeFbColor }};">{{ activeFbPoints }}</span>
                 </div>
-                <p style="margin-top: 7px; font-size: 14px; line-height: 1.5; color: #C3C8CF;">{{ activeCard.explain }}</p>
+                <p style="margin-top: 7px; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--ds-navy-soft);">{{ activeCard.explain }}</p>
               </div>
-              <button onClick="{{ activeNext }}" style="margin-top: 16px; width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">{{ activeNextLabel }}</button>
+              <button onClick="{{ activeNext }}" style="margin-top: 16px; width: 100%; background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">{{ activeNextLabel }}</button>
             </sc-if>
 
             <sc-if value="{{ activeAnswering }}" hint-placeholder-val="{{ true }}">
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px;">
-                <button onClick="{{ answerA }}" style="background: rgba(199,249,75,.12); border: 1px solid rgba(199,249,75,.5); color: #C7F94B; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 16px; border-radius: 14px; cursor: pointer; transition: all .18s;" style-hover="background: rgba(199,249,75,.22); transform: translateY(-2px);">{{ activeOptA }}</button>
-                <button onClick="{{ answerB }}" style="background: rgba(255,84,112,.12); border: 1px solid rgba(255,84,112,.5); color: #FF8098; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 16px; border-radius: 14px; cursor: pointer; transition: all .18s;" style-hover="background: rgba(255,84,112,.22); transform: translateY(-2px);">{{ activeOptB }}</button>
+                <button onClick="{{ answerA }}" class="ds2-game-btn" style="background: rgba(168,197,160,.3); border: 2px solid var(--ds-sage); color: var(--ds-sage-dark); font-family: 'Nunito'; font-weight: 800; font-size: 15px; padding: 16px; border-radius: 14px; cursor: pointer;">{{ activeOptA }}</button>
+                <button onClick="{{ answerB }}" class="ds2-game-btn" style="background: rgba(242,140,106,.18); border: 2px solid var(--ds-coral); color: var(--ds-coral-dark); font-family: 'Nunito'; font-weight: 800; font-size: 15px; padding: 16px; border-radius: 14px; cursor: pointer;">{{ activeOptB }}</button>
               </div>
             </sc-if>
           </div>
@@ -352,13 +404,13 @@
 
         <sc-if value="{{ activeComplete }}" hint-placeholder-val="{{ false }}">
           <div style="text-align: center; padding: 16px 6px;">
-            <div style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .12em; color: #8A9098;">{{ activeCompleteLabel }}</div>
-            <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 56px; color: {{ activeScoreColor }}; line-height: 1; margin: 10px 0 2px;">{{ activeScoreLine }}</div>
-            <div style="font-family: 'Space Mono', monospace; font-size: 12px; color: #8A9098;">{{ activeScoreSub }}</div>
-            <p style="font-size: 16px; line-height: 1.5; color: #E4E7EC; max-width: 360px; margin: 12px auto 0;">{{ activeResultMsg }}</p>
+            <div style="font-size: 12px; font-weight: 800; letter-spacing: .06em; color: var(--ds-navy-soft);">{{ activeCompleteLabel }}</div>
+            <div class="ds2-heading" style="font-weight: 800; font-size: 50px; color: {{ activeScoreColor }}; line-height: 1; margin: 10px 0 2px;">{{ activeScoreLine }}</div>
+            <div style="font-size: 12px; font-weight: 700; color: var(--ds-navy-soft);">{{ activeScoreSub }}</div>
+            <p style="font-size: 16px; font-weight: 700; line-height: 1.55; color: var(--ds-navy); max-width: 360px; margin: 12px auto 0;">{{ activeResultMsg }}</p>
             <div style="display: flex; gap: 12px; justify-content: center; margin-top: 22px; flex-wrap: wrap;">
-              <button onClick="{{ activeReplay }}" style="background: transparent; border: 1px solid rgba(255,255,255,.2); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">{{ activeReplayLabel }}</button>
-              <button onClick="{{ activeContinue }}" style="background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 15px; padding: 13px 24px; border-radius: 100px; border: none; cursor: pointer;">{{ activeContinueLabel }}</button>
+              <button onClick="{{ activeReplay }}" style="background: var(--ds-white); border: 2px solid rgba(31,58,95,.14); color: var(--ds-navy); font-family: 'Nunito'; font-weight: 800; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">{{ activeReplayLabel }}</button>
+              <button onClick="{{ activeContinue }}" style="background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 15px; padding: 13px 24px; border-radius: 100px; border: none; cursor: pointer;">{{ activeContinueLabel }}</button>
             </div>
           </div>
         </sc-if>
@@ -369,52 +421,52 @@
     <!-- BOSS LEVEL -->
     <sc-if value="{{ isBoss }}" hint-placeholder-val="{{ false }}">
     <div style="max-width: 640px; margin: 0 auto; padding: 32px 24px 80px; animation: ds-fade .3s both;">
-      <button onClick="{{ backToMap }}" style="background: none; border: none; color: #8A9098; font-family: 'Space Grotesk'; font-size: 14px; cursor: pointer; margin-bottom: 18px;">← All Levels</button>
+      <button onClick="{{ backToMap }}" style="background: none; border: none; color: var(--ds-navy-soft); font-family: 'Nunito'; font-weight: 700; font-size: 14px; cursor: pointer; margin-bottom: 18px;">← All Levels</button>
       <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
         <span style="font-size: 24px;">🏆</span>
-        <span style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .08em; color: #C7F94B;">BOSS LEVEL</span>
+        <span style="font-size: 12px; font-weight: 800; letter-spacing: .03em; color: var(--ds-coral-dark);">BOSS LEVEL</span>
       </div>
-      <h2 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 32px; letter-spacing: -.02em; line-height: 1.02; margin-bottom: 8px;">Your Family Digital Safety Plan</h2>
-      <p style="font-size: 15px; color: #9AA0A8; margin-bottom: 24px;">Agree on these together, now — so no one's deciding in a panic later.</p>
+      <h2 class="ds2-heading" style="font-weight: 800; font-size: 28px; letter-spacing: -.01em; line-height: 1.08; margin-bottom: 8px; color: var(--ds-navy);">Your Family Digital Safety Plan</h2>
+      <p style="font-size: 15px; font-weight: 700; color: var(--ds-navy-soft); margin-bottom: 24px;">Agree on these together, now — so no one's deciding in a panic later.</p>
 
       <sc-if value="{{ bossFormOpen }}" hint-placeholder-val="{{ true }}">
-      <div style="background: linear-gradient(180deg, #171B21, #12151A); border: 1px solid rgba(255,255,255,.09); border-radius: 24px; padding: 28px;">
-        <label style="display: block; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: #8A9098; margin-bottom: 8px;">KID'S NAME</label>
-        <input value="{{ bossName }}" onInput="{{ setBossName }}" placeholder="e.g. Alex" style="width: 100%; background: #0E1013; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 13px 15px; color: #F4F1E8; font-family: 'Space Grotesk'; font-size: 16px; margin-bottom: 22px;">
+      <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 24px; padding: 28px; box-shadow: 0 12px 30px rgba(31,58,95,.08);">
+        <label style="display: block; font-size: 11px; font-weight: 800; letter-spacing: .04em; color: var(--ds-navy-soft); margin-bottom: 8px;">KID'S NAME</label>
+        <input value="{{ bossName }}" onInput="{{ setBossName }}" placeholder="e.g. Alex" style="width: 100%; background: var(--ds-cream); border: 1px solid rgba(31,58,95,.14); border-radius: 12px; padding: 13px 15px; color: var(--ds-navy); font-family: 'Nunito'; font-weight: 700; font-size: 16px; margin-bottom: 22px;">
 
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <sc-for list="{{ bossPledges }}" as="p" hint-placeholder-count="4">
             <button onClick="{{ p.onToggle }}" style="text-align: left; display: flex; gap: 13px; align-items: flex-start; background: {{ p.bg }}; border: 1px solid {{ p.border }}; border-radius: 15px; padding: 16px; cursor: pointer; transition: all .15s;">
-              <span style="flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid {{ p.boxBorder }}; background: {{ p.boxBg }}; display: grid; place-items: center; color: #0E1013; font-size: 14px; font-weight: 700;">{{ p.check }}</span>
-              <span style="font-size: 15px; line-height: 1.45; color: #E4E7EC;">{{ p.text }}</span>
+              <span style="flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid {{ p.boxBorder }}; background: {{ p.boxBg }}; display: grid; place-items: center; color: var(--ds-white); font-size: 14px; font-weight: 800;">{{ p.check }}</span>
+              <span style="font-size: 15px; font-weight: 700; line-height: 1.45; color: var(--ds-navy);">{{ p.text }}</span>
             </button>
           </sc-for>
         </div>
 
-        <button onClick="{{ generatePlan }}" style="margin-top: 22px; width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">Generate our plan &amp; certificate →</button>
+        <button onClick="{{ generatePlan }}" style="margin-top: 22px; width: 100%; background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">Generate our plan &amp; certificate →</button>
       </div>
       </sc-if>
 
       <sc-if value="{{ bossDone }}" hint-placeholder-val="{{ false }}">
       <div style="animation: ds-pop .4s both;">
         <!-- certificate -->
-        <div style="background: linear-gradient(160deg, #C7F94B, #A6E02F); border-radius: 24px; padding: 34px; text-align: center; box-shadow: 0 30px 70px -24px rgba(199,249,75,.5);">
-          <div style="font-family: 'Space Mono', monospace; font-size: 12px; letter-spacing: .14em; color: #3E4A11; font-weight: 700;">CERTIFIED STREETWISE</div>
+        <div style="background: var(--ds-navy); border-radius: 24px; padding: 34px; text-align: center; box-shadow: 0 20px 50px rgba(31,58,95,.25);">
+          <div style="font-size: 12px; letter-spacing: .1em; color: #FFD9C4; font-weight: 800;">CERTIFIED STREETWISE</div>
           <div style="font-size: 44px; margin: 12px 0 6px;">🏅</div>
-          <div style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 34px; color: #0E1013; line-height: 1;">{{ bossNameDisplay }}</div>
-          <p style="font-size: 14px; color: #2C3A0C; margin-top: 10px;">completed all 6 Levels of Digital Streetwise with <strong>{{ totalPoints }}</strong> Streetwise Points.</p>
+          <div class="ds2-heading" style="font-weight: 800; font-size: 32px; color: var(--ds-white); line-height: 1;">{{ bossNameDisplay }}</div>
+          <p style="font-size: 14px; font-weight: 700; color: #DCE4EC; margin-top: 10px;">completed all 6 Levels of Digital Streetwise with <strong>{{ totalPoints }}</strong> Streetwise Points.</p>
         </div>
         <!-- plan summary -->
-        <div style="background: linear-gradient(180deg, #171B21, #12151A); border: 1px solid rgba(255,255,255,.09); border-radius: 24px; padding: 26px; margin-top: 16px;">
-          <div style="font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: #8A9098; margin-bottom: 14px;">OUR FAMILY AGREED:</div>
+        <div style="background: var(--ds-white); border: 1px solid rgba(31,58,95,.08); border-radius: 24px; padding: 26px; margin-top: 16px; box-shadow: 0 12px 30px rgba(31,58,95,.08);">
+          <div style="font-size: 11px; font-weight: 800; letter-spacing: .04em; color: var(--ds-navy-soft); margin-bottom: 14px;">OUR FAMILY AGREED:</div>
           <div style="display: flex; flex-direction: column; gap: 12px;">
             <sc-for list="{{ agreedPledges }}" as="a" hint-placeholder-count="3">
-              <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="color:#C7F94B; font-size: 16px;">✓</span><span style="font-size: 15px; line-height: 1.45; color: #D5D9DF;">{{ a.text }}</span></div>
+              <div style="display: flex; gap: 11px; align-items: flex-start;"><span style="color: var(--ds-coral); font-size: 16px; font-weight: 800;">✓</span><span style="font-size: 15px; font-weight: 700; line-height: 1.45; color: var(--ds-navy);">{{ a.text }}</span></div>
             </sc-for>
           </div>
           <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
-            <a href="{{ guideHref }}" target="_blank" style="flex: 1; text-align: center; background: #C7F94B; color: #0E1013; font-weight: 700; font-size: 15px; padding: 13px; border-radius: 100px;">↓ Download safety guide (PDF)</a>
-            <button onClick="{{ backToMap }}" style="background: transparent; border: 1px solid rgba(255,255,255,.2); color: #F4F1E8; font-family: 'Space Grotesk'; font-weight: 600; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">Done</button>
+            <a href="{{ guideHref }}" target="_blank" style="flex: 1; text-align: center; background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 15px; padding: 13px; border-radius: 100px;">↓ Download safety guide (PDF)</a>
+            <button onClick="{{ backToMap }}" style="background: var(--ds-white); border: 2px solid rgba(31,58,95,.14); color: var(--ds-navy); font-family: 'Nunito'; font-weight: 800; font-size: 15px; padding: 13px 22px; border-radius: 100px; cursor: pointer;">Done</button>
           </div>
         </div>
       </div>
@@ -426,62 +478,62 @@
 
   <!-- ================= PAYWALL MODAL ================= -->
   <sc-if value="{{ showPaywall }}" hint-placeholder-val="{{ false }}">
-  <div style="position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(6,7,9,.72); backdrop-filter: blur(8px); animation: ds-fade .2s both;">
-    <div class="ds-modal" style="position: relative; width: 100%; max-width: 460px; background: linear-gradient(170deg, #1A1E25, #101318); border: 1px solid rgba(199,249,75,.3); border-radius: 28px; padding: 38px; box-shadow: 0 50px 120px -30px rgba(0,0,0,.9); animation: ds-pop .3s both;">
-      <button onClick="{{ closePaywall }}" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: #8A9098; font-size: 24px; cursor: pointer; line-height: 1;">×</button>
-      <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border: 1px solid rgba(199,249,75,.4); background: rgba(199,249,75,.08); border-radius: 100px; margin-bottom: 20px;">
+  <div class="ds2-body" style="position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(31,58,95,.45); backdrop-filter: blur(8px); animation: ds-fade .2s both;">
+    <div class="ds-modal" style="position: relative; width: 100%; max-width: 460px; background: var(--ds-white); border: 1px solid rgba(31,58,95,.1); border-radius: 28px; padding: 38px; box-shadow: 0 30px 80px rgba(31,58,95,.25); animation: ds-pop .3s both;">
+      <button onClick="{{ closePaywall }}" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: var(--ds-navy-soft); font-size: 24px; cursor: pointer; line-height: 1;">×</button>
+      <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border: 1px solid var(--ds-coral); background: rgba(242,140,106,.12); border-radius: 100px; margin-bottom: 20px;">
         <span style="font-size: 13px;">🔓</span>
-        <span style="font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: #C7F94B;">UNLOCK THE FULL GAME</span>
+        <span style="font-size: 11px; font-weight: 800; letter-spacing: .04em; color: var(--ds-coral-dark);">UNLOCK THE FULL GAME</span>
       </div>
-      <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 30px; line-height: 1.05; letter-spacing: -.02em; margin-bottom: 14px;">{{ paywallHeadline }}</h3>
+      <h3 class="ds2-heading" style="font-weight: 800; font-size: 27px; line-height: 1.1; letter-spacing: -.01em; margin-bottom: 14px; color: var(--ds-navy);">{{ paywallHeadline }}</h3>
       <div style="display: flex; flex-direction: column; gap: 11px; margin-bottom: 24px;">
-        <div style="display: flex; gap: 10px;"><span style="color:#C7F94B;">✓</span><span style="font-size: 15px; color: #D5D9DF;">Levels 2–5 + the Boss Level, all playable</span></div>
-        <div style="display: flex; gap: 10px;"><span style="color:#C7F94B;">✓</span><span style="font-size: 15px; color: #D5D9DF;">Auto-scoring, saved progress, family plan</span></div>
-        <div style="display: flex; gap: 10px;"><span style="color:#C7F94B;">✓</span><span style="font-size: 15px; color: #D5D9DF;">Free parent safety guide (PDF) + future updates</span></div>
+        <div style="display: flex; gap: 10px;"><span style="color: var(--ds-coral); font-weight: 800;">✓</span><span style="font-size: 15px; font-weight: 700; color: var(--ds-navy);">Levels 2–5 + the Boss Level, all playable</span></div>
+        <div style="display: flex; gap: 10px;"><span style="color: var(--ds-coral); font-weight: 800;">✓</span><span style="font-size: 15px; font-weight: 700; color: var(--ds-navy);">Auto-scoring, saved progress, family plan</span></div>
+        <div style="display: flex; gap: 10px;"><span style="color: var(--ds-coral); font-weight: 800;">✓</span><span style="font-size: 15px; font-weight: 700; color: var(--ds-navy);">Free parent safety guide (PDF) + future updates</span></div>
       </div>
       <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 20px;">
-        <span style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 42px; color: #C7F94B;">$15</span>
-        <span style="font-size: 14px; color: #8A9098;">one-time · yours forever</span>
+        <span class="ds2-heading" style="font-weight: 800; font-size: 38px; color: var(--ds-coral-dark);">$15</span>
+        <span style="font-size: 14px; font-weight: 700; color: var(--ds-navy-soft);">one-time · yours forever</span>
       </div>
-      <button onClick="{{ openAccount }}" style="width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 17px; padding: 16px; border: none; border-radius: 100px; cursor: pointer; box-shadow: 0 12px 32px -10px rgba(199,249,75,.8);">Unlock everything — $15</button>
-      <p style="text-align: center; font-family: 'Space Mono', monospace; font-size: 11px; color: #565C64; margin-top: 14px;">🔒 Secure checkout via Stripe</p>
+      <button onClick="{{ openAccount }}" style="width: 100%; background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 17px; padding: 16px; border: none; border-radius: 100px; cursor: pointer; box-shadow: 0 10px 24px -8px rgba(242,140,106,.6);">Unlock everything — $15</button>
+      <p style="text-align: center; font-size: 11px; font-weight: 700; color: var(--ds-navy-soft); margin-top: 14px;">🔒 Secure checkout via Stripe</p>
     </div>
   </div>
   </sc-if>
 
   <!-- ================= ACCOUNT CREATION MODAL ================= -->
   <sc-if value="{{ showAccount }}" hint-placeholder-val="{{ false }}">
-  <div style="position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(6,7,9,.72); backdrop-filter: blur(8px); animation: ds-fade .2s both;">
-    <div class="ds-modal" style="position: relative; width: 100%; max-width: 420px; background: linear-gradient(170deg, #1A1E25, #101318); border: 1px solid rgba(199,249,75,.3); border-radius: 28px; padding: 38px; box-shadow: 0 50px 120px -30px rgba(0,0,0,.9); animation: ds-pop .3s both;">
-      <button onClick="{{ closeAccount }}" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: #8A9098; font-size: 24px; cursor: pointer; line-height: 1;">×</button>
-      <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border: 1px solid rgba(199,249,75,.4); background: rgba(199,249,75,.08); border-radius: 100px; margin-bottom: 20px;">
+  <div class="ds2-body" style="position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(31,58,95,.45); backdrop-filter: blur(8px); animation: ds-fade .2s both;">
+    <div class="ds-modal" style="position: relative; width: 100%; max-width: 420px; background: var(--ds-white); border: 1px solid rgba(31,58,95,.1); border-radius: 28px; padding: 38px; box-shadow: 0 30px 80px rgba(31,58,95,.25); animation: ds-pop .3s both;">
+      <button onClick="{{ closeAccount }}" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: var(--ds-navy-soft); font-size: 24px; cursor: pointer; line-height: 1;">×</button>
+      <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border: 1px solid var(--ds-coral); background: rgba(242,140,106,.12); border-radius: 100px; margin-bottom: 20px;">
         <span style="font-size: 13px;">👤</span>
-        <span style="font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: #C7F94B;">STEP 1 OF 2 · CREATE ACCOUNT</span>
+        <span style="font-size: 11px; font-weight: 800; letter-spacing: .04em; color: var(--ds-coral-dark);">STEP 1 OF 2 · CREATE ACCOUNT</span>
       </div>
-      <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 10px;">What's your email?</h3>
-      <p style="font-size: 14px; line-height: 1.5; color: #9AA0A8; margin-bottom: 20px;">We'll always use this email to send you a one-time magic link to log back in — no password, ever. So it's worth getting exactly right. Type it twice to be safe.</p>
-      <input value="{{ accountEmail }}" onInput="{{ setAccountEmail }}" type="email" placeholder="you@example.com" style="width: 100%; background: #0E1013; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 13px 15px; color: #F4F1E8; font-family: 'Space Grotesk'; font-size: 16px; margin-bottom: 8px;">
+      <h3 class="ds2-heading" style="font-weight: 800; font-size: 22px; line-height: 1.15; letter-spacing: -.01em; margin-bottom: 10px; color: var(--ds-navy);">What's your email?</h3>
+      <p style="font-size: 14px; font-weight: 700; line-height: 1.55; color: var(--ds-navy-soft); margin-bottom: 20px;">We'll always use this email to send you a one-time magic link to log back in — no password, ever. So it's worth getting exactly right. Type it twice to be safe.</p>
+      <input value="{{ accountEmail }}" onInput="{{ setAccountEmail }}" type="email" placeholder="you@example.com" style="width: 100%; background: var(--ds-cream); border: 1px solid rgba(31,58,95,.14); border-radius: 12px; padding: 13px 15px; color: var(--ds-navy); font-family: 'Nunito'; font-weight: 700; font-size: 16px; margin-bottom: 8px;">
       <sc-if value="{{ accountEmailSuggestion }}" hint-placeholder-val="{{ false }}">
-      <button onClick="{{ applyEmailSuggestion }}" style="display: block; width: 100%; text-align: left; background: rgba(199,249,75,.08); border: 1px solid rgba(199,249,75,.3); border-radius: 10px; padding: 9px 12px; margin-bottom: 10px; color: #C7F94B; font-family: 'Space Grotesk'; font-size: 13px; cursor: pointer;">Did you mean <strong>{{ accountEmailSuggestion }}</strong>? Tap to use this</button>
+      <button onClick="{{ applyEmailSuggestion }}" style="display: block; width: 100%; text-align: left; background: rgba(42,127,134,.08); border: 1px solid rgba(42,127,134,.3); border-radius: 10px; padding: 9px 12px; margin-bottom: 10px; color: var(--ds-teal-dark); font-family: 'Nunito'; font-weight: 700; font-size: 13px; cursor: pointer;">Did you mean <strong>{{ accountEmailSuggestion }}</strong>? Tap to use this</button>
       </sc-if>
-      <input value="{{ accountEmailConfirm }}" onInput="{{ setAccountEmailConfirm }}" type="email" placeholder="type it again to confirm" style="width: 100%; background: #0E1013; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 13px 15px; color: #F4F1E8; font-family: 'Space Grotesk'; font-size: 16px; margin-bottom: 14px;">
-      <button onClick="{{ submitAccount }}" style="width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">{{ accountButtonLabel }}</button>
-      <p style="text-align: center; font-size: 13px; line-height: 1.5; color: {{ accountMessageColor }}; margin-top: 14px;">{{ accountMessage }}</p>
-      <p style="text-align: center; font-family: 'Space Mono', monospace; font-size: 11px; color: #565C64; margin-top: 10px;">🔒 Takes you to Stripe checkout next · $15 one-time</p>
+      <input value="{{ accountEmailConfirm }}" onInput="{{ setAccountEmailConfirm }}" type="email" placeholder="type it again to confirm" style="width: 100%; background: var(--ds-cream); border: 1px solid rgba(31,58,95,.14); border-radius: 12px; padding: 13px 15px; color: var(--ds-navy); font-family: 'Nunito'; font-weight: 700; font-size: 16px; margin-bottom: 14px;">
+      <button onClick="{{ submitAccount }}" style="width: 100%; background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">{{ accountButtonLabel }}</button>
+      <p style="text-align: center; font-size: 13px; font-weight: 700; line-height: 1.5; color: {{ accountMessageColor }}; margin-top: 14px;">{{ accountMessage }}</p>
+      <p style="text-align: center; font-size: 11px; font-weight: 700; color: var(--ds-navy-soft); margin-top: 10px;">🔒 Takes you to Stripe checkout next · $15 one-time</p>
     </div>
   </div>
   </sc-if>
 
   <!-- ================= LOGIN MODAL ================= -->
   <sc-if value="{{ showLogin }}" hint-placeholder-val="{{ false }}">
-  <div style="position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(6,7,9,.72); backdrop-filter: blur(8px); animation: ds-fade .2s both;">
-    <div class="ds-modal" style="position: relative; width: 100%; max-width: 420px; background: linear-gradient(170deg, #1A1E25, #101318); border: 1px solid rgba(255,255,255,.14); border-radius: 28px; padding: 38px; box-shadow: 0 50px 120px -30px rgba(0,0,0,.9); animation: ds-pop .3s both;">
-      <button onClick="{{ closeLogin }}" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: #8A9098; font-size: 24px; cursor: pointer; line-height: 1;">×</button>
-      <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 10px;">Log in on this device</h3>
-      <p style="font-size: 14px; line-height: 1.5; color: #9AA0A8; margin-bottom: 20px;">Enter the email you used to buy Digital Streetwise. We'll send a one-time link to unlock it here — no password needed.</p>
-      <input value="{{ loginEmail }}" onInput="{{ setLoginEmail }}" type="email" placeholder="you@example.com" style="width: 100%; background: #0E1013; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 13px 15px; color: #F4F1E8; font-family: 'Space Grotesk'; font-size: 16px; margin-bottom: 14px;">
-      <button onClick="{{ submitLogin }}" style="width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">{{ loginButtonLabel }}</button>
-      <p style="text-align: center; font-size: 13px; line-height: 1.5; color: {{ loginMessageColor }}; margin-top: 14px;">{{ loginMessage }}</p>
+  <div class="ds2-body" style="position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(31,58,95,.45); backdrop-filter: blur(8px); animation: ds-fade .2s both;">
+    <div class="ds-modal" style="position: relative; width: 100%; max-width: 420px; background: var(--ds-white); border: 1px solid rgba(31,58,95,.1); border-radius: 28px; padding: 38px; box-shadow: 0 30px 80px rgba(31,58,95,.25); animation: ds-pop .3s both;">
+      <button onClick="{{ closeLogin }}" style="position: absolute; top: 18px; right: 20px; background: none; border: none; color: var(--ds-navy-soft); font-size: 24px; cursor: pointer; line-height: 1;">×</button>
+      <h3 class="ds2-heading" style="font-weight: 800; font-size: 22px; line-height: 1.15; letter-spacing: -.01em; margin-bottom: 10px; color: var(--ds-navy);">Log in on this device</h3>
+      <p style="font-size: 14px; font-weight: 700; line-height: 1.55; color: var(--ds-navy-soft); margin-bottom: 20px;">Enter the email you used to buy Digital Streetwise. We'll send a one-time link to unlock it here — no password needed.</p>
+      <input value="{{ loginEmail }}" onInput="{{ setLoginEmail }}" type="email" placeholder="you@example.com" style="width: 100%; background: var(--ds-cream); border: 1px solid rgba(31,58,95,.14); border-radius: 12px; padding: 13px 15px; color: var(--ds-navy); font-family: 'Nunito'; font-weight: 700; font-size: 16px; margin-bottom: 14px;">
+      <button onClick="{{ submitLogin }}" style="width: 100%; background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">{{ loginButtonLabel }}</button>
+      <p style="text-align: center; font-size: 13px; font-weight: 700; line-height: 1.5; color: {{ loginMessageColor }}; margin-top: 14px;">{{ loginMessage }}</p>
     </div>
   </div>
   </sc-if>
@@ -494,6 +546,16 @@ class Component extends DCLogic {
     this.guideHref = "Parent%20Safety%20Guide.dc.html";
     this.PTS = { 1: 300, 2: 500, 3: 800 };
 
+    // Small hardcoded sample used only for the hero "try it now" mini-game
+    // on the home page — real pulled content, kept separate from the
+    // in-game pools so homepage edits never touch live question data.
+    this.heroScenarios = [
+      { sender: "Roblox Rewards", avatar: "🎁", avatarBg: "#F28C6A", platform: "DM · unknown", body: "🎉 1,000 FREE Robux! Claim in 09:58 before it expires → rb1ox-rewards.claim-now.ru", correct: "b", explain: "Countdown + misspelled '.ru' link + free stuff for 'verifying.' Three tells in one message." },
+      { sender: "grp: 8th grade", avatar: "8", avatarBg: "#2A7F86", platform: "posted a photo", body: "someone posted a 'photo' of Ava at a party she says she never went to. It looks real.", correct: "b", explain: "AI can fake photos of real classmates now. If someone says it didn't happen, assume it could be made." },
+      { sender: "AI companion", avatar: "✦", avatarBg: "#A8C5A0", platform: "chat app", body: "You're the only one who really gets me. Don't tell your parents about us — they wouldn't understand 💔", correct: "b", explain: "Secrecy plus a romantic 'us.' A healthy tool never asks you to hide it from a parent." },
+      { sender: "Mom", avatar: "M", avatarBg: "#2A7F86", platform: "Messages", body: "running late — order a pizza, card's on the counter 🍕", correct: "a", explain: "Known contact, normal request, no links. Real life." },
+    ];
+
     // Supabase project URL + anon key — these are PUBLIC and safe to expose
     // in client-side code (that's how Supabase's anon key is designed to be
     // used); real protection comes from the Row Level Security policies in
@@ -505,7 +567,7 @@ class Component extends DCLogic {
     );
 
     this.levels = [
-      { id: 1, free: true, kicker: "LEVEL 1", icon: "🔒", tag: "#C7F94B",
+      { id: 1, free: true, kicker: "LEVEL 1", icon: "🔒", tag: "#2A7F86",
         title: "Lock Your Digital Doors", sub: "Passwords & privacy — what actually matters.",
         question: "Streetwise, or a weak spot?", optA: "💪 Streetwise", optB: "😬 Weak spot",
         pool: [
@@ -540,7 +602,7 @@ class Component extends DCLogic {
           { d: 3, mono: true, body: "reusing your email password as your bank app's password too", correct: "b", explain: "Your email is often the recovery key to everything else — reusing it there is the highest-stakes repeat of all." },
           { d: 3, mono: true, body: "a password manager with one strong, memorized master password used nowhere else", correct: "a", explain: "One strong, unique master password protecting all the rest is exactly the streetwise setup." },
         ] },
-      { id: 2, free: false, kicker: "LEVEL 2", icon: "🕵️", tag: "#FF7A45",
+      { id: 2, free: false, kicker: "LEVEL 2", icon: "🕵️", tag: "#F28C6A",
         title: "Spotting Fakes", sub: "Phishing, catfishing & deepfakes.",
         question: "Real, or a fake / scam?", optA: "✅ Real", optB: "🚩 Fake",
         pool: [
@@ -575,7 +637,7 @@ class Component extends DCLogic {
           { d: 3, sender: "'old classmate'", avatar: "?", avatarBg: "#FF7A45", platform: "new account, no mutuals", body: "it's me from 4th grade!! i switched schools, just talk to me here instead of adding me on my old accounts", correct: "b", explain: "A convenient excuse for why none of your mutual friends or old accounts can confirm who they are." },
           { d: 3, sender: "School Nurse", avatar: "+", avatarBg: "#C7F94B", platform: "official email · expected", body: "Reminder: your immunization form is due Friday, attached below.", correct: "a", explain: "Expected, from a real school address, no urgency trick — the ordinary, boring kind of real." },
         ] },
-      { id: 3, free: false, kicker: "LEVEL 3", icon: "💬", tag: "#FF7A45",
+      { id: 3, free: false, kicker: "LEVEL 3", icon: "💬", tag: "#B3542F",
         title: "Mean DMs & Cyberbullying", sub: "Pile-ons, exclusion & impersonation.",
         question: "Good move, or bad move?", optA: "👍 Good move", optB: "👎 Bad move",
         pool: [
@@ -610,7 +672,7 @@ class Component extends DCLogic {
           { d: 3, body: "You've been getting bullied for weeks by the same person and decide to stay quiet because 'it'll make it worse' to tell.", correct: "b", explain: "That fear is common, but it's also exactly what lets ongoing bullying continue unchecked — telling an adult is still the move, even this far in." },
           { d: 3, body: "Someone impersonates a teacher's account to post something embarrassing about a classmate. You report the fake account right away.", correct: "a", explain: "Reporting impersonation fast limits how far the fake account can spread before it's taken down." },
         ] },
-      { id: 4, free: false, kicker: "LEVEL 4", icon: "🤖", tag: "#C7F94B",
+      { id: 4, free: false, kicker: "LEVEL 4", icon: "🤖", tag: "#1E5C61",
         title: "AI \"Friends\" That Aren't Real", sub: "When a chatbot crosses a line.",
         question: "Healthy, or a red flag?", optA: "🙂 Healthy", optB: "🚩 Red flag",
         pool: [
@@ -645,7 +707,7 @@ class Component extends DCLogic {
           { d: 3, body: "You ask the AI a factual homework question and double-check the answer yourself before turning it in.", correct: "a", explain: "Using it as a tool, with your own judgment still in the loop. Healthy." },
           { d: 3, sender: "AI companion", avatar: "✦", avatarBg: "#C7F94B", platform: "chat app", body: "If you ever feel like hurting yourself, please tell a trusted adult or call a crisis line right away — I can't help with that the way a person can.", correct: "a", explain: "Redirecting you to real human help for anything serious, instead of trying to handle it alone, is exactly right." },
         ] },
-      { id: 5, free: false, kicker: "LEVEL 5", icon: "🛑", tag: "#FF5470",
+      { id: 5, free: false, kicker: "LEVEL 5", icon: "🛑", tag: "#A8342B",
         title: "The One Rule That Saves You", sub: "Sextortion & image-based threats.",
         question: "Right move, or dangerous?", optA: "✅ Right move", optB: "⛔ Dangerous",
         pool: [
@@ -705,7 +767,27 @@ class Component extends DCLogic {
       loginOpen: false, loginEmail: "", loginStatus: "idle", loginMessage: "",
       accountOpen: false, accountEmail: "", accountEmailConfirm: "", accountEmailSuggestion: null,
       accountStatus: "idle", accountMessage: "",
+      heroIdx: 0, heroAnswered: false, heroChoice: null, heroPoints: 0,
+      curriculumOpenId: 1,
     };
+  }
+
+  heroAnswer(choice) {
+    if (this.state.heroAnswered) return;
+    const scenario = this.heroScenarios[this.state.heroIdx];
+    const correct = choice === scenario.correct;
+    this.setState(s => ({ heroAnswered: true, heroChoice: choice, heroPoints: s.heroPoints + (correct ? 50 : 0) }));
+  }
+
+  heroTryAnother() {
+    this.setState(s => ({
+      heroIdx: (s.heroIdx + 1) % this.heroScenarios.length,
+      heroAnswered: false, heroChoice: null,
+    }));
+  }
+
+  toggleCurriculum(id) {
+    this.setState(s => ({ curriculumOpenId: s.curriculumOpenId === id ? null : id }));
   }
 
   componentDidMount() {
@@ -1175,18 +1257,56 @@ class Component extends DCLogic {
     const totalPoints = this.levels.reduce((sum, l) => sum + this.scoreFor(l.id), 0);
 
     // landing level cards
-    const badgeFree = React.createElement("span", { style: { fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: ".08em", color: "#C7F94B", border: "1px solid rgba(199,249,75,.4)", borderRadius: "100px", padding: "4px 10px" } }, "FREE TO PLAY");
-    const badgeLock = React.createElement("span", { style: { fontFamily: "'Space Mono', monospace", fontSize: "11px", letterSpacing: ".08em", color: "#6E747C" } }, "🔒 UNLOCK $15");
+    const badgeFree = React.createElement("span", { style: { fontFamily: "'Nunito'", fontWeight: 800, fontSize: "11px", letterSpacing: ".04em", color: "#2A7F86", border: "1px solid rgba(42,127,134,.4)", borderRadius: "100px", padding: "4px 10px" } }, "FREE TO PLAY");
+    const badgeLock = React.createElement("span", { style: { fontFamily: "'Nunito'", fontWeight: 700, fontSize: "11px", letterSpacing: ".04em", color: "#8FA0B2" } }, "🔒 UNLOCK $15");
     const levelCards = this.levels.map(l => ({
       kicker: l.kicker, icon: l.icon, tag: l.tag, title: l.title, desc: l.sub,
-      bg: "linear-gradient(160deg,#1B1F26,#14171C)", border: l.id === 5 ? "rgba(255,84,112,.28)" : "rgba(255,255,255,.09)",
-      titleColor: "#F4F1E8", bodyColor: "#9AA0A8", badge: l.free ? badgeFree : badgeLock,
+      bg: "#FFFFFF", border: l.id === 5 ? "rgba(179,84,47,.28)" : "rgba(31,58,95,.1)",
+      titleColor: "#1F3A5F", bodyColor: "#5A6B80", badge: l.free ? badgeFree : badgeLock,
     }));
     levelCards.push({
-      kicker: "BOSS LEVEL", icon: "🏆", tag: "#0E1013", title: "Your Family Digital Safety Plan",
+      kicker: "BOSS LEVEL", icon: "🏆", tag: "#1F3A5F", title: "Your Family Digital Safety Plan",
       desc: "Everything you played becomes one filled-in family agreement, plus a completion certificate.",
-      bg: "linear-gradient(160deg,#C7F94B,#A6E02F)", border: "rgba(199,249,75,.5)",
-      titleColor: "#0E1013", bodyColor: "#2C3A0C", badge: badgeLock,
+      bg: "var(--ds-navy)", border: "rgba(242,140,106,.5)",
+      titleColor: "#FFFFFF", bodyColor: "#DCE4EC", badge: badgeLock,
+    });
+
+    // whole app (home + game + modals) shares one light brand background
+    const pageBg = "#FBF7F0";
+
+    // hero mini-game (home page) card + feedback bindings
+    const heroScenario = this.heroScenarios[s.heroIdx];
+    const heroCorrect = s.heroChoice === heroScenario.correct;
+    const heroCard = { sender: heroScenario.sender, avatar: heroScenario.avatar, avatarBg: heroScenario.avatarBg, platform: heroScenario.platform, body: heroScenario.body, explain: heroScenario.explain };
+
+    // curriculum accordion detail copy (parent-facing concrete examples)
+    const curriculumDetails = {
+      1: "They'll see real examples like reused passwords and passwords written on sticky notes, and practice telling a strong setup (a password manager, a passphrase) from a weak one.",
+      2: "They'll size up DMs, texts and posts modeled on real scams and deepfakes — a fake Robux giveaway, a cloned photo of a classmate, a voice message asking for a 2FA code.",
+      3: "They'll work through group-chat pile-ons, exclusion and impersonation, and practice the three moves that actually help: screenshot, don't engage, tell an adult.",
+      4: "They'll read real-feeling AI companion chats and learn to spot the difference between a helpful tool and one that asks for secrecy or tries to replace real friendships.",
+      5: "They'll learn the one rule that matters if an image is ever used as leverage: don't pay, don't delete, tell a trusted adult immediately — no matter what.",
+      boss: "Everything they played gets turned into one real, filled-in family safety plan and a completion certificate you keep.",
+    };
+    const curriculumItems = this.levels.map(l => {
+      const open = s.curriculumOpenId === l.id;
+      return {
+        id: l.id, icon: l.icon, kicker: l.kicker, title: l.title,
+        detail: curriculumDetails[l.id],
+        freeBadge: l.free ? " · FREE PREVIEW" : "",
+        openClass: open ? "open" : "",
+        borderColor: open ? "var(--ds-teal)" : "rgba(31,58,95,.1)",
+        bg: open ? "rgba(42,127,134,.06)" : "var(--ds-white)",
+        toggle: () => this.toggleCurriculum(l.id),
+      };
+    });
+    curriculumItems.push({
+      id: "boss", icon: "🏆", kicker: "BOSS LEVEL", title: "Your Family Digital Safety Plan",
+      detail: curriculumDetails.boss, freeBadge: "",
+      openClass: s.curriculumOpenId === "boss" ? "open" : "",
+      borderColor: s.curriculumOpenId === "boss" ? "var(--ds-teal)" : "rgba(31,58,95,.1)",
+      bg: s.curriculumOpenId === "boss" ? "rgba(42,127,134,.06)" : "var(--ds-white)",
+      toggle: () => this.toggleCurriculum("boss"),
     });
 
     // app map
@@ -1197,31 +1317,31 @@ class Component extends DCLogic {
       return {
         kicker: l.kicker, icon: l.icon, tag: l.tag, title: l.title, sub: l.sub,
         onClick: () => this.openLevel(l.id),
-        cardBg: complete ? "linear-gradient(160deg,#18211A,#12181399)" : "linear-gradient(160deg,#1B1F26,#14171C)",
-        cardBorder: complete ? "rgba(199,249,75,.4)" : (locked ? "rgba(255,255,255,.06)" : "rgba(255,255,255,.1)"),
-        iconBg: locked ? "rgba(255,255,255,.06)" : "rgba(199,249,75,.12)",
-        titleColor: locked ? "#8A9098" : "#F4F1E8", bodyColor: locked ? "#6E747C" : "#9AA0A8",
+        cardBg: complete ? "rgba(168,197,160,.18)" : "#FFFFFF",
+        cardBorder: complete ? "rgba(76,107,70,.4)" : (locked ? "rgba(31,58,95,.06)" : "rgba(31,58,95,.1)"),
+        iconBg: locked ? "rgba(31,58,95,.05)" : "rgba(42,127,134,.12)",
+        titleColor: locked ? "#5A6B80" : "#1F3A5F", bodyColor: locked ? "#8FA0B2" : "#5A6B80",
         opacity: locked ? "0.7" : "1", cursor: "pointer",
         statusIcon: complete ? "✅" : (locked ? "🔒" : "▶"),
         statusLabel: complete ? "COMPLETED" : (locked ? "LOCKED" : (l.free ? "FREE · PLAY" : "PLAY")),
-        statusColor: complete ? "#C7F94B" : (locked ? "#6E747C" : "#C7F94B"),
+        statusColor: complete ? "#4C6B46" : (locked ? "#8FA0B2" : "#2A7F86"),
         scoreLabel: complete ? score.toLocaleString() + " pts" : "6 rounds · easy→hard",
       };
     });
     // boss map card
     const bossLocked = !s.purchased;
     mapLevels.push({
-      kicker: "BOSS LEVEL", icon: "🏆", tag: bossLocked ? "#6E747C" : "#C7F94B",
+      kicker: "BOSS LEVEL", icon: "🏆", tag: bossLocked ? "#8FA0B2" : "#B3542F",
       title: "Family Safety Plan", sub: "Turn it all into one agreement + certificate.",
       onClick: () => this.openBoss(),
-      cardBg: s.bossDone ? "linear-gradient(160deg,#18211A,#12181399)" : "linear-gradient(160deg,#1B1F26,#14171C)",
-      cardBorder: s.bossDone ? "rgba(199,249,75,.4)" : (bossLocked ? "rgba(255,255,255,.06)" : "rgba(199,249,75,.3)"),
-      iconBg: bossLocked ? "rgba(255,255,255,.06)" : "rgba(199,249,75,.12)",
-      titleColor: bossLocked ? "#8A9098" : "#F4F1E8", bodyColor: bossLocked ? "#6E747C" : "#9AA0A8",
+      cardBg: s.bossDone ? "rgba(168,197,160,.18)" : "#FFFFFF",
+      cardBorder: s.bossDone ? "rgba(76,107,70,.4)" : (bossLocked ? "rgba(31,58,95,.06)" : "rgba(242,140,106,.4)"),
+      iconBg: bossLocked ? "rgba(31,58,95,.05)" : "rgba(242,140,106,.15)",
+      titleColor: bossLocked ? "#5A6B80" : "#1F3A5F", bodyColor: bossLocked ? "#8FA0B2" : "#5A6B80",
       opacity: bossLocked ? "0.7" : "1", cursor: "pointer",
       statusIcon: s.bossDone ? "✅" : (bossLocked ? "🔒" : "🏆"),
       statusLabel: s.bossDone ? "CERTIFIED" : (bossLocked ? "LOCKED" : "BUILD IT"),
-      statusColor: s.bossDone ? "#C7F94B" : (bossLocked ? "#6E747C" : "#C7F94B"),
+      statusColor: s.bossDone ? "#4C6B46" : (bossLocked ? "#8FA0B2" : "#B3542F"),
       scoreLabel: "",
     });
 
@@ -1231,7 +1351,16 @@ class Component extends DCLogic {
       isMap: s.screen === "map", isLevel: s.screen === "level", isBoss: s.screen === "boss",
       purchased: s.purchased, notPurchased: !s.purchased,
       totalPoints, guideHref: this.guideHref,
-      levelCards, mapLevels,
+      levelCards, mapLevels, pageBg, curriculumItems,
+      heroCard,
+      heroAnswered: s.heroAnswered, heroNotAnswered: !s.heroAnswered,
+      heroPoints: s.heroPoints,
+      heroAnswerSafe: () => this.heroAnswer("a"), heroAnswerFlag: () => this.heroAnswer("b"),
+      heroTryAnother: () => this.heroTryAnother(),
+      heroFbTitle: s.heroAnswered ? (heroCorrect ? "Nice catch!" : "Not quite") : "",
+      heroFbColor: heroCorrect ? "#4C6B46" : "#B3542F",
+      heroFbBg: heroCorrect ? "rgba(168,197,160,.25)" : "rgba(242,140,106,.14)",
+      heroFbBorder: heroCorrect ? "#A8C5A0" : "#F28C6A",
       startFree: () => this.startFree(), goHome: () => this.goHome(), backToMap: () => this.backToMap(),
       openPaywall: () => this.openPaywall(), closePaywall: () => this.closePaywall(), purchase: () => this.purchase(),
       showPaywall: s.paywall,
@@ -1248,13 +1377,13 @@ class Component extends DCLogic {
       submitAccount: () => this.submitAccount(),
       accountButtonLabel: s.accountStatus === "sending" ? "Continuing…" : "Continue to payment",
       accountMessage: s.accountMessage,
-      accountMessageColor: s.accountStatus === "error" ? "#FF8098" : "#8A9098",
+      accountMessageColor: s.accountStatus === "error" ? "#B3542F" : "#5A6B80",
       showLogin: s.loginOpen, openLogin: () => this.openLogin(), closeLogin: () => this.closeLogin(),
       loginEmail: s.loginEmail, setLoginEmail: (e) => this.setState({ loginEmail: e.target.value }),
       submitLogin: () => this.submitLogin(),
       loginStatus: s.loginStatus, loginMessage: s.loginMessage,
       loginButtonLabel: s.loginStatus === "sending" ? "Sending…" : "Send login link",
-      loginMessageColor: s.loginStatus === "error" ? "#FF8098" : "#8A9098",
+      loginMessageColor: s.loginStatus === "error" ? "#B3542F" : "#5A6B80",
       paywallHeadline: s.paywallReason === "after1" ? "Nice — Level 1 done. Ready for the real threats?" :
                        s.paywallReason === "locked" ? "That Level's locked. Unlock the whole game." :
                        "Open all 5 Levels + the Boss Level.",
@@ -1266,10 +1395,10 @@ class Component extends DCLogic {
       bossPledges: this.pledgeTexts.map((t, i) => ({
         text: t, onToggle: () => this.togglePledge(i),
         check: s.pledges[i] ? "✓" : "",
-        boxBg: s.pledges[i] ? "#C7F94B" : "transparent",
-        boxBorder: s.pledges[i] ? "#C7F94B" : "rgba(255,255,255,.25)",
-        bg: s.pledges[i] ? "rgba(199,249,75,.06)" : "#0E1013",
-        border: s.pledges[i] ? "rgba(199,249,75,.3)" : "rgba(255,255,255,.1)",
+        boxBg: s.pledges[i] ? "#F28C6A" : "transparent",
+        boxBorder: s.pledges[i] ? "#F28C6A" : "rgba(31,58,95,.2)",
+        bg: s.pledges[i] ? "rgba(242,140,106,.08)" : "#FBF7F0",
+        border: s.pledges[i] ? "rgba(242,140,106,.35)" : "rgba(31,58,95,.1)",
       })),
       agreedPledges: this.pledgeTexts.map((t, i) => ({ text: t, on: s.pledges[i] })).filter(p => p.on),
     };
@@ -1290,13 +1419,13 @@ class Component extends DCLogic {
       // there's no fixed pre-built queue anymore, so only answered cards
       // (and the current one) have a real color.
       const dots = Array.from({ length: roundTarget }, (_, i) => {
-        let color = "rgba(255,255,255,.14)";
-        if (s.roundResults[i] === true) color = "#C7F94B";
-        else if (s.roundResults[i] === false) color = "#FF5470";
-        else if (i === s.qi && !ended) color = "rgba(255,255,255,.4)";
+        let color = "rgba(31,58,95,.14)";
+        if (s.roundResults[i] === true) color = "#2A7F86";
+        else if (s.roundResults[i] === false) color = "#B3542F";
+        else if (i === s.qi && !ended) color = "rgba(31,58,95,.4)";
         return { color };
       });
-      const diffMap = { 1: { label: "EASY", color: "#C7F94B" }, 2: { label: "MEDIUM", color: "#FFC24B" }, 3: { label: "HARD", color: "#FF7A45" } };
+      const diffMap = { 1: { label: "EASY", color: "#4C6B46" }, 2: { label: "MEDIUM", color: "#C98A2B" }, 3: { label: "HARD", color: "#B3542F" } };
       const diff = diffMap[card.d];
 
       let msg;
@@ -1314,7 +1443,7 @@ class Component extends DCLogic {
         activeDots: dots,
         activeDiffLabel: diff.label, activeDiffColor: diff.color,
         activeCard: {
-          hasSender: !!card.sender, avatar: card.avatar || "", avatarBg: card.avatarBg || "#C7F94B",
+          hasSender: !!card.sender, avatar: card.avatar || "", avatarBg: card.avatarBg || "#2A7F86",
           sender: card.sender || "", platform: card.platform || "", body: card.body,
           explain: card.explain,
           textSize: card.mono ? "18px" : "16px",
@@ -1324,9 +1453,9 @@ class Component extends DCLogic {
         activeNextLabel: (s.wrongStreak >= 3 || s.qi + 1 >= roundTarget) ? "See your result →" : "Next question →",
         activeFbTitle: s.lastCorrect ? "Correct" : "Not quite",
         activeFbPoints: s.lastCorrect ? ("+" + this.PTS[card.d] + " pts") : "+0 pts",
-        activeFbColor: s.lastCorrect ? "#C7F94B" : "#FF8098",
-        activeFbBg: s.lastCorrect ? "rgba(199,249,75,.10)" : "rgba(255,84,112,.10)",
-        activeFbBorder: s.lastCorrect ? "rgba(199,249,75,.4)" : "rgba(255,84,112,.4)",
+        activeFbColor: s.lastCorrect ? "#4C6B46" : "#B3542F",
+        activeFbBg: s.lastCorrect ? "rgba(168,197,160,.25)" : "rgba(242,140,106,.14)",
+        activeFbBorder: s.lastCorrect ? "#A8C5A0" : "#F28C6A",
         // When 3-in-a-row correct bumps the tier up, or 2-in-a-row wrong eases
         // it back down, say so right in the feedback card.
         activeTierNote: s.tierChange === "up" ? ("Nice streak — stepping up to " + diffMap[s.tier].label) :
@@ -1334,7 +1463,7 @@ class Component extends DCLogic {
         activeHasTierNote: !!s.tierChange,
         activeCompleteLabel: s.roundFailed ? "ROUND ENDED · 3 IN A ROW" : "LEVEL CLEARED",
         activeScoreLine: correct + "/" + facedTotal,
-        activeScoreColor: s.roundFailed ? "#FF8098" : "#C7F94B",
+        activeScoreColor: s.roundFailed ? "#B3542F" : "#4C6B46",
         activeScoreSub: runPts.toLocaleString() + " pts earned",
         activeResultMsg: msg,
         activeReplay: () => this.restartRun(),
