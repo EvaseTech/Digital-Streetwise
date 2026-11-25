@@ -473,8 +473,12 @@
         <span style="font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: .08em; color: #C7F94B;">STEP 1 OF 2 · CREATE ACCOUNT</span>
       </div>
       <h3 style="font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 24px; line-height: 1.1; letter-spacing: -.02em; margin-bottom: 10px;">What's your email?</h3>
-      <p style="font-size: 14px; line-height: 1.5; color: #9AA0A8; margin-bottom: 20px;">This becomes your account, so you can log back in and play on any device after you buy — no password needed.</p>
-      <input value="{{ accountEmail }}" onInput="{{ setAccountEmail }}" type="email" placeholder="you@example.com" style="width: 100%; background: #0E1013; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 13px 15px; color: #F4F1E8; font-family: 'Space Grotesk'; font-size: 16px; margin-bottom: 14px;">
+      <p style="font-size: 14px; line-height: 1.5; color: #9AA0A8; margin-bottom: 20px;">We'll always use this email to send you a one-time magic link to log back in — no password, ever. So it's worth getting exactly right. Type it twice to be safe.</p>
+      <input value="{{ accountEmail }}" onInput="{{ setAccountEmail }}" type="email" placeholder="you@example.com" style="width: 100%; background: #0E1013; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 13px 15px; color: #F4F1E8; font-family: 'Space Grotesk'; font-size: 16px; margin-bottom: 8px;">
+      <sc-if value="{{ accountEmailSuggestion }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ applyEmailSuggestion }}" style="display: block; width: 100%; text-align: left; background: rgba(199,249,75,.08); border: 1px solid rgba(199,249,75,.3); border-radius: 10px; padding: 9px 12px; margin-bottom: 10px; color: #C7F94B; font-family: 'Space Grotesk'; font-size: 13px; cursor: pointer;">Did you mean <strong>{{ accountEmailSuggestion }}</strong>? Tap to use this</button>
+      </sc-if>
+      <input value="{{ accountEmailConfirm }}" onInput="{{ setAccountEmailConfirm }}" type="email" placeholder="type it again to confirm" style="width: 100%; background: #0E1013; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; padding: 13px 15px; color: #F4F1E8; font-family: 'Space Grotesk'; font-size: 16px; margin-bottom: 14px;">
       <button onClick="{{ submitAccount }}" style="width: 100%; background: #C7F94B; color: #0E1013; font-family: 'Space Grotesk'; font-weight: 700; font-size: 16px; padding: 15px; border: none; border-radius: 100px; cursor: pointer;">{{ accountButtonLabel }}</button>
       <p style="text-align: center; font-size: 13px; line-height: 1.5; color: {{ accountMessageColor }}; margin-top: 14px;">{{ accountMessage }}</p>
       <p style="text-align: center; font-family: 'Space Mono', monospace; font-size: 11px; color: #565C64; margin-top: 10px;">🔒 Takes you to Stripe checkout next · $15 one-time</p>
@@ -601,7 +605,8 @@ class Component extends DCLogic {
       paywall: false, paywallReason: "default",
       bossName: "", pledges: [true, true, true, true], bossDone: false,
       loginOpen: false, loginEmail: "", loginStatus: "idle", loginMessage: "",
-      accountOpen: false, accountEmail: "", accountStatus: "idle", accountMessage: "",
+      accountOpen: false, accountEmail: "", accountEmailConfirm: "", accountEmailSuggestion: null,
+      accountStatus: "idle", accountMessage: "",
     };
   }
 
@@ -857,15 +862,54 @@ class Component extends DCLogic {
     const savedEmail = localStorage.getItem("ds_email") || "";
     this.setState({
       accountOpen: true, paywall: false,
-      accountEmail: savedEmail, accountStatus: "idle", accountMessage: "",
+      accountEmail: savedEmail, accountEmailConfirm: "", accountEmailSuggestion: null,
+      accountStatus: "idle", accountMessage: "",
     });
   }
   closeAccount() { this.setState({ accountOpen: false }); }
 
+  // Common domain typos — catches the keystrokes people actually make
+  // ("gmial.com", "yaho.com", etc.) without needing a network call.
+  emailDomainTypos() {
+    return {
+      "gmial.com": "gmail.com", "gmai.com": "gmail.com", "gmil.com": "gmail.com", "gmal.com": "gmail.com",
+      "gmailcom": "gmail.com", "gamil.com": "gmail.com",
+      "yaho.com": "yahoo.com", "yhoo.com": "yahoo.com", "yahooo.com": "yahoo.com",
+      "hotmial.com": "hotmail.com", "hotmil.com": "hotmail.com", "hotmai.com": "hotmail.com",
+      "outlok.com": "outlook.com", "outllook.com": "outlook.com", "outlook.con": "outlook.com",
+      "iclould.com": "icloud.com", "icoud.com": "icloud.com", "icloud.con": "icloud.com",
+      "gmail.con": "gmail.com", "gmail.cm": "gmail.com", "gmail.comm": "gmail.com",
+    };
+  }
+  checkEmailTypo(email) {
+    const at = email.lastIndexOf("@");
+    if (at === -1 || at === email.length - 1) return null;
+    const domain = email.slice(at + 1).toLowerCase();
+    const fix = this.emailDomainTypos()[domain];
+    return fix ? email.slice(0, at + 1) + fix : null;
+  }
+  applyEmailSuggestion() {
+    this.setState(s => ({ accountEmail: s.accountEmailSuggestion, accountEmailSuggestion: null }));
+  }
+
   submitAccount() {
     const email = (this.state.accountEmail || "").trim().toLowerCase();
-    if (!email || !email.includes("@")) {
+    const confirmEmail = (this.state.accountEmailConfirm || "").trim().toLowerCase();
+    if (!email || !email.includes("@") || !email.includes(".")) {
       this.setState({ accountStatus: "error", accountMessage: "Enter a valid email address." });
+      return;
+    }
+    if (!confirmEmail) {
+      this.setState({ accountStatus: "error", accountMessage: "Type your email a second time to confirm it." });
+      return;
+    }
+    if (email !== confirmEmail) {
+      this.setState({ accountStatus: "error", accountMessage: "Those two don't match — double-check for a typo and try again." });
+      return;
+    }
+    const typoFix = this.checkEmailTypo(email);
+    if (typoFix) {
+      this.setState({ accountStatus: "error", accountMessage: `That domain looks off — did you mean ${typoFix}?`, accountEmailSuggestion: typoFix });
       return;
     }
     this.setState({ accountStatus: "sending", accountMessage: "" });
@@ -983,7 +1027,15 @@ class Component extends DCLogic {
       openPaywall: () => this.openPaywall(), closePaywall: () => this.closePaywall(), purchase: () => this.purchase(),
       showPaywall: s.paywall,
       showAccount: s.accountOpen, openAccount: () => this.openAccount(), closeAccount: () => this.closeAccount(),
-      accountEmail: s.accountEmail, setAccountEmail: (e) => this.setState({ accountEmail: e.target.value }),
+      accountEmail: s.accountEmail,
+      setAccountEmail: (e) => {
+        const v = e.target.value;
+        this.setState({ accountEmail: v, accountEmailSuggestion: this.checkEmailTypo(v.trim().toLowerCase()) });
+      },
+      accountEmailConfirm: s.accountEmailConfirm,
+      setAccountEmailConfirm: (e) => this.setState({ accountEmailConfirm: e.target.value }),
+      accountEmailSuggestion: s.accountEmailSuggestion,
+      applyEmailSuggestion: () => this.applyEmailSuggestion(),
       submitAccount: () => this.submitAccount(),
       accountButtonLabel: s.accountStatus === "sending" ? "Continuing…" : "Continue to payment",
       accountMessage: s.accountMessage,
