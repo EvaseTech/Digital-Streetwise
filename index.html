@@ -39,8 +39,11 @@
   .ds2-how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
   .ds2-trust-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 420px; }
   .ds2-cta-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .ds2-curriculum-body { max-height: 0; overflow: hidden; transition: max-height .25s ease; }
-  .ds2-curriculum-item.open .ds2-curriculum-body { max-height: 220px; }
+  .ds2-curriculum-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s cubic-bezier(.4,0,.2,1); }
+  .ds2-curriculum-item.open .ds2-curriculum-body { grid-template-rows: 1fr; }
+  .ds2-curriculum-body > div { overflow: hidden; min-height: 0; }
+  button:not(.ds2-game-btn):not([disabled]) { transition: transform .15s ease, filter .15s ease, box-shadow .15s ease; }
+  button:not(.ds2-game-btn):not([disabled]):hover { transform: scale(1.035); filter: brightness(1.07); }
   .ds2-curriculum-item.open .ds2-chevron { transform: rotate(180deg); color: var(--ds-teal-dark); }
   .ds2-game-btn:active { transform: scale(.96); }
   .ds2-game-feedback { animation: ds2-pop .25s ease both; }
@@ -58,6 +61,7 @@
   .ds2-how-card-inner.has-hovered { border-color: rgba(42,127,134,.35); }
   .ds2-how-card-inner::before { content: ''; position: absolute; inset: -2px; border-radius: 24px; padding: 2px; background: conic-gradient(from var(--ds-how-angle, 0deg), transparent 0%, var(--ds-teal) 12%, transparent 26%); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: opacity .25s ease; pointer-events: none; animation: ds2-rotate-border 1.8s linear infinite; }
   .ds2-how-card-inner.is-hovering { transform: translateY(-6px); box-shadow: 0 18px 34px -12px rgba(31,58,95,.25); }
+  .ds2-how-card-inner.no-lift.is-hovering { transform: none; box-shadow: 0 2px 10px rgba(31,58,95,.05); }
   .ds2-how-card-inner.is-hovering::before { opacity: 1; }
   @property --ds-how-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
   @keyframes ds2-rotate-border { to { --ds-how-angle: 360deg; } }
@@ -212,7 +216,7 @@
         A one-time safety lecture is forgotten by dinner. A reflex kicks in the moment it actually matters.
       </h2>
     </section>
-    <section style="max-width: 1180px; margin: 0 auto; padding: 10px 32px 40px;">
+    <section style="max-width: 1180px; margin: 0 auto; padding: 10px 32px 20px;">
       <div class="ds2-how-stage">
         <div class="ds2-how-card" style="left: {{ howCard1Left }}; z-index: 5;">
           <div class="ds2-how-card-inner {{ howInner1Class }}" onClick="{{ howAdvance }}" onMouseEnter="{{ howHover1Enter }}" onMouseLeave="{{ howHover1Leave }}">
@@ -223,7 +227,7 @@
           </div>
         </div>
         <div class="ds2-how-card {{ howCard2WrapClass }}" style="left: {{ howCard2Left }}; z-index: 4;">
-          <div class="ds2-how-card-inner {{ howInner2Class }}" onClick="{{ howAdvance }}" onMouseEnter="{{ howHover2Enter }}" onMouseLeave="{{ howHover2Leave }}">
+          <div class="ds2-how-card-inner no-lift {{ howInner2Class }}" onClick="{{ howAdvance }}" onMouseEnter="{{ howHover2Enter }}" onMouseLeave="{{ howHover2Leave }}">
             <div class="ds2-how-num">02</div>
             <h3 class="ds2-heading">They make the call</h3>
             <p>Real-feeling messages, scams and chats. Your kid decides: safe, or a red flag — and gets scored on it.</p>
@@ -237,14 +241,13 @@
           </div>
         </div>
       </div>
-      <p class="ds2-how-done {{ howDoneShow }}">Nice — that's the whole loop. Try Level 1 now, free ↓</p>
       <div style="text-align: center; margin-top: 24px;">
         <button onClick="{{ startFree }}" style="background: var(--ds-coral); color: var(--ds-white); font-family: 'Nunito'; font-weight: 800; font-size: 17px; padding: 16px 32px; border-radius: 100px; border: none; cursor: pointer; box-shadow: 0 10px 24px -8px rgba(242,140,106,.6);">Try Level 1 now — free →</button>
       </div>
     </section>
 
     <!-- THE LEVELS — interactive accordion -->
-    <section id="inside" style="max-width: 1180px; margin: 0 auto; padding: 56px 32px 60px;">
+    <section id="inside" style="max-width: 1180px; margin: 0 auto; padding: 32px 32px 60px;">
       <div style="text-align: center; margin-bottom: 36px;">
         <span class="ds2-heading" style="font-weight: 800; font-size: 13px; letter-spacing: .04em; text-transform: uppercase; color: var(--ds-coral-dark);">The full ladder</span>
         <h2 class="ds2-heading" style="font-weight: 800; font-size: 30px; letter-spacing: -.01em; margin: 6px 0 10px; color: var(--ds-navy);">Five Levels and a Boss Level</h2>
@@ -1409,11 +1412,11 @@ class Component extends DCLogic {
       howCard1Left: s.howStep >= 2 ? "0px" : "258px",
       howCard2Left: "258px",
       howCard3Left: s.howCard3Slid ? "516px" : "258px",
-      howCard2WrapClass: (s.howStep < 2 ? "hidden-card " : "") + (s.howCard2Popped ? "popping" : ""),
+      howCard2WrapClass: (!s.howCard2Popped ? "hidden-card " : "") + (s.howCard2Popped ? "popping" : ""),
       howCard3WrapClass: (s.howStep < 3 ? "hidden-card " : "") + (s.howCard3Popped ? "popping" : ""),
-      howInner1Class: (s.howHoverActive === 1 ? "is-hovering " : "") + (s.howHoverSeen[1] ? "has-hovered" : ""),
-      howInner2Class: (s.howHoverActive === 2 ? "is-hovering " : "") + (s.howHoverSeen[2] ? "has-hovered" : ""),
-      howInner3Class: (s.howHoverActive === 3 ? "is-hovering " : "") + (s.howHoverSeen[3] ? "has-hovered" : ""),
+      howInner1Class: (!s.howDone && s.howHoverActive === 1 ? "is-hovering " : "") + (s.howHoverSeen[1] ? "has-hovered" : ""),
+      howInner2Class: (!s.howDone && s.howHoverActive === 2 ? "is-hovering " : "") + (s.howHoverSeen[2] ? "has-hovered" : ""),
+      howInner3Class: (!s.howDone && s.howHoverActive === 3 ? "is-hovering " : "") + (s.howHoverSeen[3] ? "has-hovered" : ""),
       howAdvance: () => this.howAdvance(),
       howHover1Enter: () => this.howHoverEnter(1), howHover1Leave: () => this.howHoverLeave(1),
       howHover2Enter: () => this.howHoverEnter(2), howHover2Leave: () => this.howHoverLeave(2),
